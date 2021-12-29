@@ -12,6 +12,8 @@ import io.swagger.annotations.*;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -55,7 +57,7 @@ public class GoodsController {
     @PostMapping
     public Result addGoods(
             @RequestBody GoodsFormDTO goodsForm
-    ) {
+    ) throws IOException {
         boolean result = iPmsSpuService.addGoods(goodsForm);
         return Result.judge(result);
     }

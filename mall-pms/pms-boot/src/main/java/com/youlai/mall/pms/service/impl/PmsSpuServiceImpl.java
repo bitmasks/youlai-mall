@@ -6,26 +6,35 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.youlai.common.result.ResultCode;
+import com.youlai.common.web.exception.BizException;
 import com.youlai.mall.pms.common.constant.PmsConstants;
 import com.youlai.mall.pms.common.enums.AttributeTypeEnum;
 import com.youlai.mall.pms.component.BloomRedisService;
 import com.youlai.mall.pms.mapper.PmsSpuMapper;
 import com.youlai.mall.pms.pojo.dto.admin.GoodsFormDTO;
+import com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO;
+import com.youlai.mall.pms.pojo.entity.PmsBrand;
 import com.youlai.mall.pms.pojo.entity.PmsSku;
 import com.youlai.mall.pms.pojo.entity.PmsSpu;
 import com.youlai.mall.pms.pojo.entity.PmsSpuAttributeValue;
 import com.youlai.mall.pms.pojo.vo.admin.GoodsDetailVO;
+import com.youlai.mall.pms.service.IPmsBrandService;
 import com.youlai.mall.pms.service.IPmsSkuService;
 import com.youlai.mall.pms.service.IPmsSpuAttributeValueService;
 import com.youlai.mall.pms.service.IPmsSpuService;
+import com.youlai.mall.pms.service.elasticsearch.ElasticsearchSpuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +48,13 @@ import java.util.stream.Collectors;
 public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> implements IPmsSpuService {
     private final IPmsSkuService iPmsSkuService;
     private final IPmsSpuAttributeValueService iPmsSpuAttributeValueService;
+
+    @Resource
+    private IPmsBrandService iPmsBrandService;
+    @Resource
+    private ElasticsearchSpuService elasticsearchSpuService;
+    @Resource
+    private ElasticsearchClient elasticsearchClient;
 
     /**
      * 商品分页列表
@@ -62,8 +78,8 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
      * @return
      */
     @Override
-    @Transactional
-    public boolean addGoods(GoodsFormDTO goods) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean addGoods(GoodsFormDTO goods) throws IOException {
         Long goodsId = this.saveSpu(goods);
         // 属性保存
         List<GoodsFormDTO.AttributeValue> attrValList = goods.getAttrList();
@@ -73,7 +89,22 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
         Map<String, Long> specTempIdIdMap = this.saveSpecification(goodsId, specList);
         // SKU保存
         List<PmsSku> skuList = goods.getSkuList();
-        return this.saveSku(goodsId, skuList, specTempIdIdMap);
+        boolean result = this.saveSku(goodsId, skuList, specTempIdIdMap);
+        if (!result){
+            return false;
+        }
+
+        PmsBrand brand = iPmsBrandService.getById(goods.getBrandId());
+        if (brand == null){
+            throw new BizException("品牌不存在");
+        }
+        Set<ElasticsearchProductDTO> elasticsearchProducts = elasticsearchSpuService.listBySpuId(goodsId);
+        //TODO 后续替换成bulk操作
+        for (ElasticsearchProductDTO elasticsearchProduct : elasticsearchProducts) {
+            elasticsearchClient.create(c->c.index("product").document(elasticsearchProduct));
+        }
+
+        return true;
     }
 
 

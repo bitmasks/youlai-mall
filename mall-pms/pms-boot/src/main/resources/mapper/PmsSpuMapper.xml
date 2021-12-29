@@ -91,4 +91,52 @@
         FROM pms_sku
         WHERE spu_id = #{id}
     </select>
+
+    <resultMap id="ElasticsearchProductDTO" type="com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO">
+        <id column="spuId" property="spuId"/>
+        <result column="brandId" property="brandId"/>
+        <result column="brandLogo" property="brandLogo"/>
+        <result column="brandName" property="brandName"/>
+        <result column="categoryId" property="categoryId"/>
+        <result column="categoryName" property="categoryName"/>
+        <result column="saleCount" property="saleCount"/>
+        <result column="skuId" property="skuId"/>
+        <result column="skuName" property="skuName"/>
+        <result column="skuPicture" property="skuPicture"/>
+        <result column="skuPrice" property="skuPrice"/>
+        <result column="hasStock" property="hasStock"/>
+        <collection property="attributes" ofType="com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductAttributeDTO">
+            <id column="attributeId" property="attributeId"/>
+            <result column="attributeName" property="attributeName"/>
+            <result column="attributeValue" property="attributeValue"/>
+        </collection>
+    </resultMap>
+
+    <select id="listBySpuId" resultType="com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO">
+        SELECT
+            pb.id AS 'brandId',
+                pb.logo_url 'brandLogo',
+                pb.`name` AS 'brandName',
+                pc.id AS 'categoryId',
+                pc.`name` AS 'categoryName',
+                spu.sales AS 'saleCount',
+                spu.id AS 'spuId',
+                sku.id AS 'skuId',
+                sku.`name` AS 'skuName',
+                sku.pic_url AS 'skuPicture',
+                sku.price AS 'skuPrice',
+                IF( sku.stock > 0, 1, 0 ) AS 'hasStock',
+                pa.id AS 'attributeId',
+                pa.`name` AS 'attributeName',
+                pa.type AS 'attributeValue'
+        FROM
+            pms_spu spu
+                LEFT JOIN pms_sku sku ON spu.id = sku.spu_id
+                LEFT JOIN pms_category pc ON pc.id = spu.category_id
+                LEFT JOIN pms_brand pb ON pb.id = spu.brand_id
+                LEFT JOIN pms_spu_attribute_value psav ON psav.spu_id = spu.id
+                LEFT JOIN pms_attribute pa ON pa.id = psav.attribute_id
+        WHERE
+            spu.id = #{spuId}
+    </select>
 </mapper>

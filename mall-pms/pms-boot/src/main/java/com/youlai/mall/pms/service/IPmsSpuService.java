@@ -7,6 +7,7 @@ import com.youlai.mall.pms.pojo.dto.admin.GoodsFormDTO;
 import com.youlai.mall.pms.pojo.entity.PmsSpu;
 import com.youlai.mall.pms.pojo.vo.admin.GoodsDetailVO;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -14,7 +15,7 @@ public interface IPmsSpuService extends IService<PmsSpu> {
 
     IPage<PmsSpu> list(Page<PmsSpu> page,  String name,Long categoryId);
 
-    boolean addGoods(GoodsFormDTO goodsFormDTO);
+    boolean addGoods(GoodsFormDTO goodsFormDTO) throws IOException;
 
     boolean removeByGoodsIds(List<Long> spuIds);
 
