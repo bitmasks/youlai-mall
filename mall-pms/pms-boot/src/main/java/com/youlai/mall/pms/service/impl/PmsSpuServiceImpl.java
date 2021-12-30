@@ -4,18 +4,16 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.youlai.common.result.ResultCode;
 import com.youlai.common.web.exception.BizException;
 import com.youlai.mall.pms.common.constant.PmsConstants;
 import com.youlai.mall.pms.common.enums.AttributeTypeEnum;
-import com.youlai.mall.pms.component.BloomRedisService;
 import com.youlai.mall.pms.mapper.PmsSpuMapper;
 import com.youlai.mall.pms.pojo.dto.admin.GoodsFormDTO;
 import com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO;
@@ -98,15 +96,39 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
         if (brand == null){
             throw new BizException("品牌不存在");
         }
-        Set<ElasticsearchProductDTO> elasticsearchProducts = elasticsearchSpuService.listBySpuId(goodsId);
-        //TODO 后续替换成bulk操作
-        for (ElasticsearchProductDTO elasticsearchProduct : elasticsearchProducts) {
-            elasticsearchClient.create(c->c.index("product").document(elasticsearchProduct));
-        }
+        this.bulkCreateProduct(goodsId);
 
         return true;
     }
 
+    /**
+     * <p>
+     * Title: 批量保存商品到ES
+     * </p>
+     * <p>
+     * Description:
+     * </p>
+     *
+     * @param spuId 商品编号
+     * @author 刘小杰
+     * @date 2021年12月30日
+     * @since 1.8
+     */
+    private void bulkCreateProduct(Long spuId) throws IOException {
+        Set<ElasticsearchProductDTO> elasticsearchProducts = elasticsearchSpuService.listBySpuId(spuId);
+        List<BulkOperation> operations = elasticsearchProducts.stream().map(product -> {
+            String id = product.getSpuId() + "-" + product.getSkuId();
+            BulkOperation operation = new BulkOperation.Builder().create(c -> c.index("product")
+                    .id(id)
+                    .document(product)
+            ).build();
+            return operation;
+        }).collect(Collectors.toList());
+        BulkResponse response = elasticsearchClient.bulk(b -> b.operations(operations) );
+        if (response == null || response.errors()){
+            throw new BizException("商品存入ES异常");
+        }
+    }
 
     /**
      * 修改商品

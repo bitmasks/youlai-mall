@@ -1,5 +1,6 @@
 package com.youlai.mall.pms.pojo.dto.elasticsearch;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -17,10 +18,16 @@ import lombok.Data;
 @Data
 public class ElasticsearchProductAttributeDTO {
 
+    @ApiModelProperty("属性ID")
     private Long attributeId;
 
+    @ApiModelProperty("商品属性关系ID")
+    private Long attributeSpuRelationId;
+
+    @ApiModelProperty("属性名称")
     private String attributeName;
 
+    @ApiModelProperty("属性值")
     private String attributeValue;
 
 }
