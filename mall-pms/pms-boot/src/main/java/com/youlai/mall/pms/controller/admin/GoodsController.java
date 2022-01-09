@@ -1,10 +1,9 @@
 package com.youlai.mall.pms.controller.admin;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.common.result.Result;
 import com.youlai.mall.pms.pojo.dto.admin.GoodsFormDTO;
+import com.youlai.mall.pms.pojo.dto.admin.GoodsPageDTO;
 import com.youlai.mall.pms.pojo.entity.PmsSpu;
 import com.youlai.mall.pms.pojo.vo.admin.GoodsDetailVO;
 import com.youlai.mall.pms.service.IPmsSpuService;
@@ -33,14 +32,8 @@ public class GoodsController {
 
     @ApiOperation(value = "商品分页列表")
     @GetMapping("/page")
-    public Result list(
-            @ApiParam(value = "页码", example = "1") long pageNum,
-            @ApiParam(value = "每页数量", example = "10") long pageSize,
-            @ApiParam("商品分类ID") Long categoryId,
-            @ApiParam("商品名称") String name
-    ) {
-        IPage<PmsSpu> result = iPmsSpuService.list(new Page<>(pageNum, pageSize), name, categoryId);
-        return Result.success(result.getRecords(), result.getTotal());
+    public Result list(GoodsPageDTO queryDTO) {
+        return iPmsSpuService.listFromElasticsearch(queryDTO);
     }
 
     @ApiOperation(value = "商品详情")

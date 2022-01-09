@@ -7,15 +7,17 @@ import cn.hutool.core.lang.Assert;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.youlai.common.result.Result;
 import com.youlai.common.web.exception.BizException;
 import com.youlai.mall.pms.common.constant.PmsConstants;
 import com.youlai.mall.pms.common.enums.AttributeTypeEnum;
 import com.youlai.mall.pms.mapper.PmsSpuMapper;
 import com.youlai.mall.pms.pojo.dto.admin.GoodsFormDTO;
+import com.youlai.mall.pms.pojo.dto.admin.GoodsPageDTO;
+import com.youlai.mall.pms.pojo.vo.admin.GoodsPageVO;
 import com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO;
 import com.youlai.mall.pms.pojo.entity.PmsBrand;
 import com.youlai.mall.pms.pojo.entity.PmsSku;
@@ -30,6 +32,8 @@ import com.youlai.mall.pms.service.elasticsearch.ElasticsearchSpuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -54,19 +58,47 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
     @Resource
     private ElasticsearchClient elasticsearchClient;
 
-    /**
-     * 商品分页列表
-     *
-     * @param page
-     * @param name
-     * @param categoryId
-     * @return
-     */
     @Override
-    public IPage<PmsSpu> list(Page<PmsSpu> page, String name, Long categoryId) {
-        List<PmsSpu> list = this.baseMapper.list(page, name, categoryId);
-        page.setRecords(list);
-        return page;
+    public Result<List<GoodsPageVO>> listFromElasticsearch(GoodsPageDTO queryDTO) {
+        try {
+            List<Hit<ElasticsearchProductDTO>> hits = elasticsearchClient.search(search -> search.query(
+                    query -> {
+                        if (StringUtils.hasText(queryDTO.getName())){
+                            return query.match(
+                                    match->match.field("skuName").query(
+                                            value->value.stringValue(queryDTO.getName())
+                                    )
+                            );
+                        }
+                        return query.matchAll(all->all);
+                    }
+            ), ElasticsearchProductDTO.class).hits().hits();
+            List<ElasticsearchProductDTO> sources = hits.stream().map(Hit::source).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(sources)){
+                return Result.success(Collections.EMPTY_LIST,0L);
+            }
+            //根据spuID分组
+            Map<Long, List<ElasticsearchProductDTO>> spuMap = sources.stream().collect(Collectors.groupingBy(ElasticsearchProductDTO::getSpuId));
+            List<GoodsPageVO> records = Collections.EMPTY_LIST;
+            spuMap.forEach((spuId,products)->{
+                GoodsPageVO goods = new GoodsPageVO();
+                ElasticsearchProductDTO firstProduct = products.stream().findFirst().get();
+                goods.setId(firstProduct.getSpuId());
+                goods.setName(firstProduct.getSkuName());
+                goods.setCategoryId(firstProduct.getCategoryId());
+                goods.setBrandName(firstProduct.getBrandName());
+                goods.setCategoryName(firstProduct.getCategoryName());
+                goods.setBrandId(firstProduct.getBrandId());
+                goods.setPrice(Long.valueOf(firstProduct.getSkuPrice()));
+                goods.setSales(firstProduct.getSaleCount().intValue());
+                goods.setPicUrl(firstProduct.getSkuPicture());
+//                products.stream().map().collect(Collectors.toList())
+            });
+            return Result.success(records,Long.valueOf(hits.size()));
+        } catch (IOException e) {
+            log.error(e.getMessage(),e);
+            throw new BizException("查询失败");
+        }
     }
 
     /**
