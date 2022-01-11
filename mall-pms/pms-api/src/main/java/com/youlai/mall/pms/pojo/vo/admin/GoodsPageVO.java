@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.youlai.mall.pms.pojo.entity.PmsSku;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -25,24 +26,43 @@ import java.util.List;
 @Data
 public class GoodsPageVO {
 
+    @ApiModelProperty("商品ID")
     private Long id;
-    private String name;
-    private Long categoryId;
-    private Long brandId;
-    private Long originPrice;
-    private Long price;
-    private Integer sales;
-    private String picUrl;
-    private String[] album;
-    private String unit;
-    private String description;
-    private String detail;
-    private Integer status;
 
+    @ApiModelProperty("商品名称")
+    private String name;
+
+    @ApiModelProperty("商品分类ID")
+    private Long categoryId;
+
+    @ApiModelProperty("分类名称")
     private String categoryName;
 
+    @ApiModelProperty("品牌ID")
+    private Long brandId;
+
+    @ApiModelProperty("品牌名称")
     private String brandName;
 
-    private List<PmsSku> skuList;
+    @ApiModelProperty("原价")
+    private Long originPrice;
+
+    @ApiModelProperty("现价")
+    private Long price;
+
+    @ApiModelProperty("销量")
+    private Integer sales;
+
+    @ApiModelProperty("商品主图")
+    private String picUrl;
+
+    @ApiModelProperty("单位")
+    private String unit;
+
+    @ApiModelProperty("描述")
+    private String description;
+
+    @ApiModelProperty("商品状态")
+    private Integer status;
 
 }

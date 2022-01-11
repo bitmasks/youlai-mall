@@ -32,8 +32,8 @@ public interface ElasticsearchSpuService extends IService<PmsSpu> {
      * @param spuId 商品ID
      * @return com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO
      * @author 刘小杰
-     * @date 2021年12月30日
+     * @date 2022年01月11日
      * @since 1.8
      */
-    Set<ElasticsearchProductDTO> listBySpuId(Long spuId);
+    ElasticsearchProductDTO listBySpuId(Long spuId);
 }

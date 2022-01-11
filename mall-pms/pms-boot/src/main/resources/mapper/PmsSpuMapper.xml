@@ -92,49 +92,24 @@
         WHERE spu_id = #{id}
     </select>
 
-    <resultMap id="ElasticsearchProductDTO" type="com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO">
-        <id column="spuId" property="spuId"/>
-        <result column="brandId" property="brandId"/>
-        <result column="brandLogo" property="brandLogo"/>
-        <result column="brandName" property="brandName"/>
-        <result column="categoryId" property="categoryId"/>
-        <result column="categoryName" property="categoryName"/>
-        <result column="saleCount" property="saleCount"/>
-        <result column="skuId" property="skuId"/>
-        <result column="skuName" property="skuName"/>
-        <result column="skuPicture" property="skuPicture"/>
-        <result column="skuPrice" property="skuPrice"/>
-        <result column="hasStock" property="hasStock"/>
-        <collection property="attributes" ofType="com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductAttributeDTO">
-            <id column="attributeSpuRelationId" property="attributeSpuRelationId"/>
-            <result column="attributeId" property="attributeId"/>
-            <result column="attributeName" property="attributeName"/>
-            <result column="attributeValue" property="attributeValue"/>
-        </collection>
-    </resultMap>
-
-    <select id="listBySpuId" resultMap="ElasticsearchProductDTO">
-        SELECT pb.id                   AS 'brandId',
-                pb.logo_url             AS   'brandLogo',
-                pb.`name`               AS 'brandName',
-                pc.id                   AS 'categoryId',
-                pc.`name`               AS 'categoryName',
-                spu.sales               AS 'saleCount',
-                spu.id                  AS 'spuId',
-                sku.id                  AS 'skuId',
-                sku.`name`              AS 'skuName',
-                sku.pic_url             AS 'skuPicture',
-                sku.price               AS 'skuPrice',
-                IF(sku.stock > 0, 1, 0) AS 'hasStock',
-                psav.id                   AS 'attributeSpuRelationId',
-                psav.attribute_id         AS 'attributeId',
-                psav.`name`               AS 'attributeName',
-                psav.value                 AS 'attributeValue'
+    <select id="listBySpuId" resultType="com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO">
+        SELECT pb.id            AS 'brandId',
+                pb.logo_url      AS 'brandLogo',
+                pb.`name`        AS 'brandName',
+                pc.id            AS 'categoryId',
+                pc.`name`        AS 'categoryName',
+                spu.sales        AS 'saleCount',
+                spu.id           AS 'spuId',
+                spu.`name`       AS 'spuName',
+                spu.pic_url      AS 'spuPicture',
+                spu.origin_price AS 'originPrice',
+                spu.price        AS 'spuPrice',
+                spu.unit         AS 'unit',
+                spu.description  AS 'description',
+                spu.STATUS       AS 'status'
         FROM pms_spu spu
-                 LEFT JOIN pms_sku sku ON spu.id = sku.spu_id
                  LEFT JOIN pms_category pc ON pc.id = spu.category_id
                  LEFT JOIN pms_brand pb ON pb.id = spu.brand_id
-                 LEFT JOIN pms_spu_attribute_value psav ON psav.spu_id = spu.id
         WHERE
             spu.id = #{spuId}
     </select>

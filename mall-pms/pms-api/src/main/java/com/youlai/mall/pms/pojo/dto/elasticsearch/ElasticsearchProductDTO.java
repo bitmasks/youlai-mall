@@ -20,6 +20,9 @@ import java.util.List;
 @Data
 public class ElasticsearchProductDTO {
 
+    @ApiModelProperty("商品ID")
+    private Long spuId;
+
     @ApiModelProperty("品牌ID")
     private Long brandId;
 
@@ -35,27 +38,27 @@ public class ElasticsearchProductDTO {
     @ApiModelProperty("品牌名称")
     private String brandName;
 
-    @ApiModelProperty("是否有库存")
-    private Boolean hasStock;
-
     @ApiModelProperty("销量")
     private Long saleCount;
 
-    @ApiModelProperty("商品库存ID")
-    private Long skuId;
-
     @ApiModelProperty("商品名称")
-    private String skuName;
+    private String spuName;
 
-    @ApiModelProperty("商品图片")
-    private String skuPicture;
+    @ApiModelProperty("商品主图")
+    private String spuPicture;
+
+    @ApiModelProperty("原价")
+    private Long originPrice;
 
     @ApiModelProperty("商品价格")
-    private String skuPrice;
+    private Long spuPrice;
 
-    @ApiModelProperty("商品ID")
-    private Long spuId;
+    @ApiModelProperty("单位")
+    private String unit;
 
-    @ApiModelProperty("商品属性")
-    private List<ElasticsearchProductAttributeDTO> attributes;
+    @ApiModelProperty("描述")
+    private String description;
+
+    @ApiModelProperty("商品状态")
+    private Integer status;
 }

@@ -26,10 +26,10 @@ public interface PmsSpuMapper extends BaseMapper<PmsSpu> {
      * </p>
      *
      * @param spuId 商品ID
-     * @return java.util.List<com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO>
+     * @return com.youlai.mall.pms.pojo.dto.elasticsearch.ElasticsearchProductDTO
      * @author 刘小杰
-     * @date 2021年12月30日
+     * @date 2022年01月11日
      * @since 1.8
      */
-    Set<ElasticsearchProductDTO> listBySpuId(@Param("spuId") Long spuId);
+    ElasticsearchProductDTO listBySpuId(@Param("spuId") Long spuId);
 }

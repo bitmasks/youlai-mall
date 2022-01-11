@@ -6,6 +6,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.Assert;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
+import co.elastic.clients.elasticsearch.core.CreateResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -61,7 +62,7 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
     @Override
     public Result<List<GoodsPageVO>> listFromElasticsearch(GoodsPageDTO queryDTO) {
         try {
-            List<Hit<ElasticsearchProductDTO>> hits = elasticsearchClient.search(search -> search.query(
+            List<Hit<ElasticsearchProductDTO>> hits = elasticsearchClient.search(search -> search.index("product").query(
                     query -> {
                         if (StringUtils.hasText(queryDTO.getName())){
                             return query.match(
@@ -77,23 +78,23 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
             if (CollectionUtils.isEmpty(sources)){
                 return Result.success(Collections.EMPTY_LIST,0L);
             }
-            //根据spuID分组
-            Map<Long, List<ElasticsearchProductDTO>> spuMap = sources.stream().collect(Collectors.groupingBy(ElasticsearchProductDTO::getSpuId));
-            List<GoodsPageVO> records = Collections.EMPTY_LIST;
-            spuMap.forEach((spuId,products)->{
+            List<GoodsPageVO> records = sources.stream().map(source->{
                 GoodsPageVO goods = new GoodsPageVO();
-                ElasticsearchProductDTO firstProduct = products.stream().findFirst().get();
-                goods.setId(firstProduct.getSpuId());
-                goods.setName(firstProduct.getSkuName());
-                goods.setCategoryId(firstProduct.getCategoryId());
-                goods.setBrandName(firstProduct.getBrandName());
-                goods.setCategoryName(firstProduct.getCategoryName());
-                goods.setBrandId(firstProduct.getBrandId());
-                goods.setPrice(Long.valueOf(firstProduct.getSkuPrice()));
-                goods.setSales(firstProduct.getSaleCount().intValue());
-                goods.setPicUrl(firstProduct.getSkuPicture());
-//                products.stream().map().collect(Collectors.toList())
-            });
+                goods.setId(source.getSpuId());
+                goods.setName(source.getSpuName());
+                goods.setCategoryId(source.getCategoryId());
+                goods.setCategoryName(source.getCategoryName());
+                goods.setBrandId(source.getBrandId());
+                goods.setBrandName(source.getBrandName());
+                goods.setOriginPrice(source.getOriginPrice());
+                goods.setPrice(source.getSpuPrice());
+                goods.setSales(source.getSaleCount().intValue());
+                goods.setPicUrl(source.getSpuPicture());
+                goods.setUnit(source.getUnit());
+                goods.setDescription(source.getDescription());
+                goods.setStatus(source.getStatus());
+                return goods;
+            }).collect(Collectors.toList());
             return Result.success(records,Long.valueOf(hits.size()));
         } catch (IOException e) {
             log.error(e.getMessage(),e);
@@ -128,14 +129,13 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
         if (brand == null){
             throw new BizException("品牌不存在");
         }
-        this.bulkCreateProduct(goodsId);
-
+        this.createProduct(goodsId);
         return true;
     }
 
     /**
      * <p>
-     * Title: 批量保存商品到ES
+     * Title: 保存商品到ES
      * </p>
      * <p>
      * Description:
@@ -146,20 +146,9 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
      * @date 2021年12月30日
      * @since 1.8
      */
-    private void bulkCreateProduct(Long spuId) throws IOException {
-        Set<ElasticsearchProductDTO> elasticsearchProducts = elasticsearchSpuService.listBySpuId(spuId);
-        List<BulkOperation> operations = elasticsearchProducts.stream().map(product -> {
-            String id = product.getSpuId() + "-" + product.getSkuId();
-            BulkOperation operation = new BulkOperation.Builder().create(c -> c.index("product")
-                    .id(id)
-                    .document(product)
-            ).build();
-            return operation;
-        }).collect(Collectors.toList());
-        BulkResponse response = elasticsearchClient.bulk(b -> b.operations(operations) );
-        if (response == null || response.errors()){
-            throw new BizException("商品存入ES异常");
-        }
+    private void createProduct(Long spuId) throws IOException {
+        ElasticsearchProductDTO elasticsearchProduct = elasticsearchSpuService.listBySpuId(spuId);
+        elasticsearchClient.create(c -> c.index("product").id(elasticsearchProduct.getSpuId().toString()).document(elasticsearchProduct));
     }
 
     /**

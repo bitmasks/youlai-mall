@@ -105,26 +105,26 @@ public class ElasticsearchTest {
 
     @Test
     public void test() throws IOException {
-        Set<ElasticsearchProductDTO> elasticsearchProducts = elasticsearchSpuService.listBySpuId(76L);
-        System.out.println(elasticsearchProducts);
-        CreateResponse response = elasticsearchClient.create(c -> c.index("product").id("1").document(elasticsearchProducts.stream().findFirst()));
-        System.out.println(response);
+//        Set<ElasticsearchProductDTO> elasticsearchProducts = elasticsearchSpuService.listBySpuId(76L);
+//        System.out.println(elasticsearchProducts);
+//        CreateResponse response = elasticsearchClient.create(c -> c.index("product").id("1").document(elasticsearchProducts.stream().findFirst()));
+//        System.out.println(response);
     }
 
     @Test
     public void bulkCreateProduct() throws IOException {
-        Set<ElasticsearchProductDTO> elasticsearchProducts = elasticsearchSpuService.listBySpuId(76L);
-        System.out.println(elasticsearchProducts);
-        List<BulkOperation> operations = elasticsearchProducts.stream().map(product -> {
-            String id = product.getSpuId() + "-" + product.getSkuId();
-            BulkOperation operation = new BulkOperation.Builder().create(c -> c.index("product")
-                    .id(id)
-                    .document(product)
-            ).build();
-            return operation;
-        }).collect(Collectors.toList());
-        BulkResponse response = elasticsearchClient.bulk(b -> b.operations(operations) );
-        System.out.println(response);
+//        Set<ElasticsearchProductDTO> elasticsearchProducts = elasticsearchSpuService.listBySpuId(76L);
+//        System.out.println(elasticsearchProducts);
+//        List<BulkOperation> operations = elasticsearchProducts.stream().map(product -> {
+//            String id = product.getSpuId() + "-" + product.getSkuId();
+//            BulkOperation operation = new BulkOperation.Builder().create(c -> c.index("product")
+//                    .id(id)
+//                    .document(product)
+//            ).build();
+//            return operation;
+//        }).collect(Collectors.toList());
+//        BulkResponse response = elasticsearchClient.bulk(b -> b.operations(operations) );
+//        System.out.println(response);
     }
 
 }

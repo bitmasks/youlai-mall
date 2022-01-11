@@ -27,7 +27,7 @@ public class ElasticsearchSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSp
 
 
     @Override
-    public Set<ElasticsearchProductDTO> listBySpuId(Long spuId) {
+    public ElasticsearchProductDTO listBySpuId(Long spuId) {
         return this.getBaseMapper().listBySpuId(spuId);
     }
 }
