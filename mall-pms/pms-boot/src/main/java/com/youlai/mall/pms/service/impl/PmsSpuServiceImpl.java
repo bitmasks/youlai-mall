@@ -66,7 +66,7 @@ public class PmsSpuServiceImpl extends ServiceImpl<PmsSpuMapper, PmsSpu> impleme
                     query -> {
                         if (StringUtils.hasText(queryDTO.getName())){
                             return query.match(
-                                    match->match.field("skuName").query(
+                                    match->match.field("spuName").query(
                                             value->value.stringValue(queryDTO.getName())
                                     )
                             );
