@@ -2,5 +2,5 @@ spring:
   application:
     name: mall-sms
   profiles:
-    active: dev
+    active: local
 
