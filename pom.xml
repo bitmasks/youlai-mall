@@ -305,4 +305,52 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <!--配置信息-->
+    <profiles>
+        <!--本地环境-->
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>local</spring.profiles.active>
+                <server.port>8084</server.port>
+            </properties>
+        </profile>
+        <!--开发环境-->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+                <server.port>8804</server.port>
+            </properties>
+        </profile>
+        <!--k8s环境-->
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>k8s</spring.profiles.active>
+                <server.port>8084</server.port>
+            </properties>
+        </profile>
+        <!--生产环境-->
+        <profile>
+            <id>pro</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>pro</spring.profiles.active>
+                <server.port>8084</server.port>
+            </properties>
+        </profile>
+    </profiles>
 </project>
