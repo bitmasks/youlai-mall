@@ -70,7 +70,28 @@ public enum ResultCode implements IResultCode, Serializable {
     DATABASE_COLUMN_NOT_EXIST("C0312", "列不存在"),
     DATABASE_DUPLICATE_COLUMN_NAME("C0321", "多表关联中存在多个相同名称的列"),
     DATABASE_DEADLOCK("C0331", "数据库死锁"),
-    DATABASE_PRIMARY_KEY_CONFLICT("C0341", "主键冲突");
+    DATABASE_PRIMARY_KEY_CONFLICT("C0341", "主键冲突"),
+
+    /**
+     *秒杀
+     */
+    SEC_KILL_OVER("D0001","商品已经秒杀完毕"),
+    REPEATE_SEC_KILL("D0002","不能重复秒杀"),
+    SEC_KILL_REDUCE_FAIL("D0004","减库存失败"),
+    SEC_KILL_FAIL("D0003","秒杀失败"),
+    SEC_KILL_RESULT_FAIL("D0005","获取秒杀结果失败"),
+    SEC_KILL_NOT_START("D0006","秒杀还未开始"),
+    SEC_KILL_ING("D0007","秒杀进行中"),
+    SEC_KILL_END("D0008","秒杀已经结束"),
+    SEC_KILL_DEDUCT_FAIL("D0009","扣减库存失败"),
+    SEC_KILL_LOCAL_GOODS_NO ("D0010","访问太频繁!"),
+    SEC_KILL_MQ_SEND_FAIL ("D0011","MQ信息发送失败!"),
+    SEC_KILL_QUEUE_ING ("D0012","排队中请耐心等待!"),
+    SEC_KILL_NOT_CURRENT("D0013","当前时间该商品未参与秒杀"),
+    SEC_KILL_COMPLETED("D0014","当前时间该商品未参与秒杀"),
+    SEC_KILL_GOOD_EXIST("D0015","订单已经存在"),
+    DATA_NOT_EXISTS("D0016", "数据不存在");
+
 
     @Override
     public String getCode() {

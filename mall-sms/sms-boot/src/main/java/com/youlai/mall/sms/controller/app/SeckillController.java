@@ -1,16 +1,16 @@
 package com.youlai.mall.sms.controller.app;
 
 import com.youlai.common.result.Result;
-import com.youlai.mall.sms.pojo.vo.SmsSeckillSkuVO;
-import com.youlai.mall.sms.service.ISeckillService;
+import com.youlai.mall.sms.service.ISmsSeckillService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import javax.annotation.PostConstruct;
 
 /**
  * @author huawei
@@ -25,11 +25,28 @@ import java.util.List;
 public class SeckillController {
 
     @Autowired
-    private ISeckillService ISeckillService;
+    private  ISmsSeckillService seckillService;
 
-    @GetMapping
-    public Result getCurrentSeckillSession() {
-        List<SmsSeckillSkuVO> currentSeckills = ISeckillService.getCurrentSeckillSession();
-        return Result.success();
+    /**
+     * 系统初始化商品，提前预热三天秒杀场次信息
+     * @throws Exception
+     */
+    @PostConstruct
+    public void init() throws Exception {
+        seckillService.updateSeckillSkuLatest3Days();
+    }
+
+
+    @ApiOperation(value = "秒杀")
+    @PostMapping("/seckill")
+    public Result seckill(Long umsMemberId,String skuId) {
+
+
+
+
+
+
+
+        return null;
     }
 }

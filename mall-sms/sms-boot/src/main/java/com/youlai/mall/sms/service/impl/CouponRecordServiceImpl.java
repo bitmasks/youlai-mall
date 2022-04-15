@@ -3,7 +3,6 @@ package com.youlai.mall.sms.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.youlai.common.web.exception.BizException;
-import com.youlai.common.web.util.JwtUtils;
 import com.youlai.common.web.util.MemberUtils;
 import com.youlai.mall.sms.mapper.SmsCouponRecordMapper;
 import com.youlai.mall.sms.pojo.domain.SmsCoupon;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

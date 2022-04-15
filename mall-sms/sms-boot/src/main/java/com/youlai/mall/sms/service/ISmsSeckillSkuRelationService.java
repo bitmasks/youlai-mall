@@ -1,6 +1,7 @@
 package com.youlai.mall.sms.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.youlai.common.result.Result;
 import com.youlai.mall.sms.pojo.domain.SmsSeckillSkuRelation;
 
 import java.util.List;
@@ -19,4 +20,12 @@ public interface ISmsSeckillSkuRelationService extends IService<SmsSeckillSkuRel
      * @return 关联商品列表
      */
     List<SmsSeckillSkuRelation> selectBySessionId(Long sessionId);
+
+    /**
+     * 扣减数据库库存
+     * @param sessionId
+     * @param skuId
+     * @return
+     */
+    public Result<Boolean> reduceStock(Long sessionId,Long skuId);
 }

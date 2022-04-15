@@ -1,14 +1,14 @@
 package com.youlai.common.redis.utils;
 
+import cn.hutool.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -143,7 +143,7 @@ public class RedisUtils {
      * @param delta 要增加几(大于0)
      * @return
      */
-    public long incr(String key, long delta) {
+    public Long incr(String key, long delta) {
         if (delta < 0) {
             throw new RuntimeException("递增因子必须大于0");
         }
@@ -157,11 +157,11 @@ public class RedisUtils {
      * @param delta 要减少几(小于0)
      * @return
      */
-    public long decr(String key, long delta) {
+    public Long decr(String key, long delta) {
         if (delta < 0) {
             throw new RuntimeException("递减因子必须大于0");
         }
-        return redisTemplate.opsForValue().increment(key, -delta);
+        return redisTemplate.opsForValue().decrement(key, -delta);
     }
     // ================================Hash(哈希)=================================
 
@@ -584,6 +584,132 @@ public class RedisUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return new HashSet<>();
+        }
+    }
+
+    /**
+     * 获取一个redis分布锁
+     *
+     * @param lockKey        锁住的key
+     * @param lockExpireMils 锁住的时长。如果超时未解锁，视为加锁线程死亡，其他线程可夺取锁
+     * @return
+     */
+    public boolean setNx(String lockKey, long lockExpireMils) {
+        return (Boolean) redisTemplate.execute((RedisCallback) connection -> {
+            long nowTime = System.currentTimeMillis();
+            Boolean acquire = connection.setNX(lockKey.getBytes(), String.valueOf(nowTime + lockExpireMils + 1).getBytes());
+            if (acquire) {
+                return Boolean.TRUE;
+            } else {
+                byte[] value = connection.get(lockKey.getBytes());
+                if (Objects.nonNull(value) && value.length > 0) {
+                    long oldTime = Long.parseLong(new String(value));
+                    if (oldTime < nowTime) {
+                        //connection.getSet：返回这个key的旧值并设置新值，原子操作。
+                        byte[] oldValue = connection.getSet(lockKey.getBytes(), String.valueOf(nowTime + lockExpireMils + 1).getBytes());
+                        //当key不存时会返回空，表示key不存在或者已在管道中使用
+                        return oldValue == null ? false : Long.parseLong(new String(oldValue)) < nowTime;
+                    }
+                }
+            }
+            return Boolean.FALSE;
+        });
+    }
+
+    /*****************************************redis自增id*****************************************/
+
+    /**
+     * 获得循环的递增Id
+     * 当获取的id > 最大值，则重置
+     *
+     * @param key      key值
+     * @param incrStep 步长
+     * @param maxValue 最大值
+     * @return
+     */
+    public long loopIncrId(String key, int incrStep, long maxValue) {
+        if (incrStep > maxValue) {
+            throw new RuntimeException("incrStep=" + incrStep + ",cannot bigger than maxValue=" + maxValue);
+        }
+        Long id = incr(key, incrStep);
+        if (id > maxValue) {
+            id = resetLoopNum(key, incrStep, maxValue);
+        }
+        return id;
+    }
+
+
+    /**
+     * 重置num
+     *
+     * @param key
+     * @param incrStep
+     * @param maxValue
+     * @return
+     */
+    public Long resetLoopNum(String key, int incrStep, long maxValue) {
+        // redis中值大于某个值重置的lua脚本语句
+        String script = "" +
+                "local maxValue = tonumber(ARGV[2]);" +
+                "local currValue = tonumber(redis.call('incrby', KEYS[1], ARGV[1]));" +
+                "if currValue > maxValue then " +
+                "  redis.call('set', KEYS[1], 0);" +
+                "  currValue = tonumber(redis.call('incrby', KEYS[1], ARGV[1]));" +
+                "end;" +
+                "return currValue;";
+        List<String> args = new ArrayList<>();
+        args.add(String.valueOf(incrStep));
+        args.add(String.valueOf(maxValue));
+        Long id = eval(script, Collections.singletonList(key), args,Long.class);
+        return id;
+    }
+
+    /**
+     * 求值计算
+     *
+     * @param script
+     * @param keys
+     * @param args
+     * @param <T>
+     * @return
+     */
+    public <T> T eval(String script, List<String> keys, List<String> args, Class<T> clazz) {
+        // 构造RedisScript并指定返回类类型
+        DefaultRedisScript<T> redisScript = new DefaultRedisScript<T>(script, clazz);
+        // 参数一：redisScript，参数二：key列表，参数三：arg（可多个）
+        return redisTemplate.execute(redisScript, keys, args);
+    }
+
+    /*****************************************Bean2string工具****************************************/
+
+    public  <T> T stringToBean(String str, Class<T> clazz) {
+        if(str == null || str.length() <= 0 || clazz == null) {
+            return null;
+        }
+        if(clazz == int.class || clazz == Integer.class) {
+            return (T)Integer.valueOf(str);
+        }else if(clazz == String.class) {
+            return (T)str;
+        }else if(clazz == long.class || clazz == Long.class) {
+            return  (T)Long.valueOf(str);
+        }else {
+            return JSONUtil.toBean(JSONUtil.parseObj(str), clazz);
+        }
+    }
+
+    public  <T> String beanToString(T value) {
+        if(value == null) {
+            return null;
+        }
+        Class<?> clazz = value.getClass();
+        if(clazz == int.class || clazz == Integer.class) {
+            return ""+value;
+        }else if(clazz == String.class) {
+            return (String)value;
+        }else if(clazz == long.class || clazz == Long.class) {
+            return ""+value;
+        }else {
+            return JSONUtil.toJsonStr(value);
         }
     }
 

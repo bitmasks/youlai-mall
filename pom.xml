@@ -29,6 +29,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
+
     <properties>
         <youlai.version>2.0.0</youlai.version>
 
@@ -57,6 +58,11 @@
         <ip2region.version>1.7.2</ip2region.version>
         <dozer.version>6.2.0</dozer.version>
         <swagger.version>1.6.2</swagger.version>
+        <curator-framework.version>5.2.0</curator-framework.version>
+        <curator-recipes.version>5.2.0</curator-recipes.version>
+        <zookeeper.version>3.7.0</zookeeper.version>
+        <guava.version>28.1-jre</guava.version>
+        <docker.image.prefix>youlai</docker.image.prefix>
         <kaptcha.version>2.3.2</kaptcha.version>
         <aliyun.java.sdk.core.version>4.5.25</aliyun.java.sdk.core.version>
         <aliyun.java.sdk.dysmsapi.version>2.1.0</aliyun.java.sdk.dysmsapi.version>
@@ -278,6 +284,23 @@
                 <groupId>com.aliyun</groupId>
                 <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
                 <version>${aliyun.java.sdk.dysmsapi.version}</version>
+            </dependency>
+
+            <!-- Zookeeper客户端-->
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-framework</artifactId>
+                <version>${curator-framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-recipes</artifactId>
+                <version>${curator-recipes.version}</version>
             </dependency>
 
         </dependencies>

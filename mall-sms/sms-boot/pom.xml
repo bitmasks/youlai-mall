@@ -67,6 +67,12 @@
 
         <dependency>
             <groupId>com.youlai</groupId>
+            <artifactId>oms-api</artifactId>
+            <version>${youlai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.youlai</groupId>
             <artifactId>common-mybatis</artifactId>
             <version>${youlai.version}</version>
         </dependency>
@@ -89,6 +95,16 @@
             <version>${dozer.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.youlai</groupId>
+            <artifactId>common-zookeeper</artifactId>
+            <version>${youlai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.youlai</groupId>
+            <artifactId>common-rabbitmq</artifactId>
+        </dependency>
 
     </dependencies>
 
