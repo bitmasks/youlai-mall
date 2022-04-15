@@ -21,4 +21,14 @@ public interface ISmsSeckillSessionService extends IService<SmsSeckillSession> {
      * @return 秒杀活动列表
      */
     List<SmsSeckillSession> selectByTime(DateTime startTime, DateTime endTime);
+
+
+    /**
+     * 获取当前时间内正在进行的秒杀活动
+     *
+     * @return java.util.List<com.youlai.mall.sms.pojo.domain.SmsSeckillSession>
+     * @author xiezhiyan
+     * @date 2022/2/25 13:53:35
+     */
+    List<SmsSeckillSession> selectCurrentSeckillSession();
 }

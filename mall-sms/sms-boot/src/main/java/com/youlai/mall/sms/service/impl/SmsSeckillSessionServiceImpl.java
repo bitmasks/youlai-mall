@@ -1,6 +1,7 @@
 package com.youlai.mall.sms.service.impl;
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.youlai.mall.sms.mapper.SmsSeckillSessionMapper;
@@ -26,6 +27,14 @@ public class SmsSeckillSessionServiceImpl extends ServiceImpl<SmsSeckillSessionM
         QueryWrapper<SmsSeckillSession> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", 1).between("start_time", startTime, endTime).orderByAsc("start_time");
 
+        return this.list(queryWrapper);
+    }
+    @Override
+    public List<SmsSeckillSession> selectCurrentSeckillSession() {
+        DateTime now = DateUtil.date();
+        log.info("获取正在进行的秒杀活动信息");
+        QueryWrapper<SmsSeckillSession> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("status", 1).lt("start_time", now).gt("end_time", now).orderByAsc("start_time");
         return this.list(queryWrapper);
     }
 }
