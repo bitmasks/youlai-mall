@@ -1,6 +1,6 @@
 package com.youlai.mall.sms.scheduled;
 
-import com.youlai.common.redis.utils.RedissionLockUtils;
+import com.youlai.common.redis.utils.DistributedLockRedissonUtils;
 import com.youlai.mall.sms.service.ISmsSeckillService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class SeckillSkuScheduled {
     @Autowired
     private ISmsSeckillService seckillService;
 
-    private RedissionLockUtils redissionLockUtils;
+    private DistributedLockRedissonUtils redissionLockUtils;
 
     @Scheduled(cron = "0 * * * * ?")
     public void updateSeckillSkuLatest3Days() {

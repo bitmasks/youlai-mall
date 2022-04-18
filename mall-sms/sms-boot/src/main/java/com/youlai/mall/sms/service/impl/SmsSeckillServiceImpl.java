@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import com.youlai.common.constant.RedisConstants;
 import com.youlai.common.constant.ZookeeperContants;
 import com.youlai.common.redis.utils.RedisUtils;
-import com.youlai.common.redis.utils.RedissionLockUtils;
+import com.youlai.common.redis.utils.DistributedLockRedissonUtils;
 import com.youlai.common.result.Result;
 import com.youlai.common.result.ResultCode;
 import com.youlai.common.web.exception.BizException;
@@ -62,7 +62,7 @@ public class SmsSeckillServiceImpl implements ISmsSeckillService {
 
     private final RedisUtils redisUtils;
 
-    private final RedissionLockUtils redissionLockUtils;
+    private final DistributedLockRedissonUtils redissionLockUtils;
 
     private final ZkApiUtils zkApiUtils;
 

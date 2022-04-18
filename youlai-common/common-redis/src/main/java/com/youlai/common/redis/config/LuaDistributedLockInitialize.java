@@ -1,6 +1,6 @@
-package com.youlai.common.redis.distributeLock.lua.lock;
+package com.youlai.common.redis.config;
 
-import com.youlai.common.redis.distributeLock.lua.properties.LockProperties;
+import com.youlai.common.redis.distributeLock.lua.IBaseLockLua;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,13 +26,13 @@ import java.util.UUID;
 @Slf4j
 @Component
 @Setter
-public class LuaDistributedLock implements ILuaBaseLock, InitializingBean {
+public class LuaDistributedLockInitialize implements IBaseLockLua, InitializingBean {
 
 
     @Autowired
     private StringRedisTemplate redisTemplate;
     @Autowired
-    private LockProperties lockProperties;
+    private LuaLockAutoConfiguration lockProperties;
     /**
      * 锁脚本
      */

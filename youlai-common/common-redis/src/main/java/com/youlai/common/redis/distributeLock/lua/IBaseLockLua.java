@@ -1,11 +1,11 @@
-package com.youlai.common.redis.distributeLock.lua.lock;
+package com.youlai.common.redis.distributeLock.lua;
 
 /**
  * @author: xiezhiyan
  * @createTime: 2022/02/23 20:43
  * @description: lua锁接口
  */
-public interface ILuaBaseLock {
+public interface IBaseLockLua {
 
     /**
      * 获取锁

@@ -1,10 +1,9 @@
-package com.youlai.common.redis;
+package com.youlai.common.redis.config;
 
 import cn.hutool.core.util.StrUtil;
-import com.youlai.common.lock.DistributedLock;
-import com.youlai.common.redis.distributeLock.redission.IRedissionLocker;
-import com.youlai.common.redis.distributeLock.redission.RedissonDistributedLocker;
-import com.youlai.common.redis.utils.RedissionLockUtils;
+import com.youlai.common.redis.distributeLock.redission.DistributedLockRedisson;
+import com.youlai.common.redis.distributeLock.redission.IDistributedLockRedisson;
+import com.youlai.common.redis.utils.DistributedLockRedissonUtils;
 import lombok.Setter;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -17,6 +16,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * 分布式锁 Redisson 配置
@@ -25,11 +25,12 @@ import org.springframework.context.annotation.Configuration;
  * @email huawei_code@163.com
  * @date 2021/2/22
  */
+
+@Configuration
 @ConditionalOnProperty(prefix = "redisson",name = "address")
 @ConfigurationProperties(prefix = "redisson")
-@Configuration
 @AutoConfigureBefore(RedisAutoConfiguration.class)
-public class RedissonConfig {
+public class RedissonAutoConfiguration {
 
     @Setter
     private String address;
@@ -60,11 +61,13 @@ public class RedissonConfig {
      * 装配locker类，并将实例注入到RedissLockUtil中
      * @return
      */
-    @Bean
+
+
+    @Bean("distributedLockRedisson")
+    @Primary
     @ConditionalOnClass(RedissonClient.class)
-    IRedissionLocker redissonDistributedLocker(RedissonClient redissonClient) {
-        IRedissionLocker locker = new RedissonDistributedLocker(redissonClient);
-        return locker;
+    IDistributedLockRedisson redissonDistributedLocker(RedissonClient redissonClient) {
+        return new DistributedLockRedisson(redissonClient);
     }
 
     /**
@@ -72,23 +75,13 @@ public class RedissonConfig {
      * @return
      */
     @Bean
-    @ConditionalOnClass(IRedissionLocker.class)
-    RedissionLockUtils redissionLockUtils(IRedissionLocker iRedissionLocker){
-        RedissionLockUtils redissionLockUtils = new RedissionLockUtils();
-        redissionLockUtils.setLocker(iRedissionLocker);
+    @ConditionalOnClass(IDistributedLockRedisson.class)
+    DistributedLockRedissonUtils redissionLockUtils(IDistributedLockRedisson distributedLockRedisson){
+        DistributedLockRedissonUtils redissionLockUtils = new DistributedLockRedissonUtils();
+        redissionLockUtils.setLocker(distributedLockRedisson);
         return redissionLockUtils;
     }
 
-    /**
-     * 装配带回调的分布式锁
-     * @param redissonClient
-     * @return
-     */
-    @Bean
-    @ConditionalOnClass(RedissonClient.class)
-    public DistributedLock distributedLockRedis(RedissonClient redissonClient) {
-        return new RedissonDistributedLocker(redissonClient);
-    }
 
 
 }

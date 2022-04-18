@@ -74,12 +74,10 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>${hutool.version}</version>
         </dependency>
         <!-- jasypt加密 -->
         <!--<dependency>
@@ -267,6 +265,12 @@
                 <version>${youlai.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.youlai</groupId>
+                <artifactId>common-idempotent</artifactId>
+                <version>${youlai.version}</version>
+            </dependency>
+
             <!-- 验证码 -->
             <dependency>
                 <groupId>com.github.penggle</groupId>
@@ -302,7 +306,16 @@
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator-recipes.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -332,7 +345,7 @@
         </profile>
         <!--k8s环境-->
         <profile>
-            <id>local</id>
+            <id>k8s</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>

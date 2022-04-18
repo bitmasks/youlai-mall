@@ -1,7 +1,6 @@
 package com.youlai.common.idempotent.storage;
 
 
-
 import com.youlai.common.idempotent.enums.IdempotentStorageTypeEnum;
 
 import java.util.concurrent.TimeUnit;

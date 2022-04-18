@@ -1,8 +1,9 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.youlai.common.redis.RedisConfig,\
   com.youlai.common.redis.BusinessNoGenerator,\
-  com.youlai.common.redis.utils.RedisUtils,\
-  com.youlai.common.redis.RedissonConfig,\
-  com.youlai.common.redis.RedisCacheConfig,\
-  com.youlai.common.redis.distributeLock.lua.properties.LockProperties
-  
+  com.youlai.common.redis.config.RedisCacheConfig,\
+  com.youlai.common.redis.config.RedisAutoConfiguration,\
+  com.youlai.common.redis.config.RedissonAutoConfiguration,\
+  com.youlai.common.redis.config.LuaLockAutoConfiguration,\
+  com.youlai.common.redis.utils.DistributedLockLuaUtils,\
+  com.youlai.common.redis.utils.DistributedLockRedissonUtils,\
+  com.youlai.common.redis.utils.RedisUtils

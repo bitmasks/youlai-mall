@@ -1,7 +1,6 @@
 package com.youlai.common.idempotent.properties;
 
 
-
 import com.youlai.common.idempotent.enums.IdempotentStorageTypeEnum;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -1,5 +1,6 @@
 package com.youlai.common.redis.distributeLock.redission;
 
+import com.youlai.common.lock.CustomDistributedLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * @createTime: 2022/02/23 15:05
  * @description: 分布式锁接口
  */
-public interface IRedissionLocker {
+public interface IDistributedLockRedisson extends CustomDistributedLock {
 
     RLock lock(String lockKey);
 

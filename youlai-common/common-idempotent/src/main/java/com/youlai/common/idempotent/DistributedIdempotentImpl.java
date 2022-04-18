@@ -7,9 +7,10 @@ import com.youlai.common.idempotent.properties.IdempotentProperties;
 import com.youlai.common.idempotent.request.IdempotentRequest;
 import com.youlai.common.idempotent.storage.IdempotentStorage;
 import com.youlai.common.idempotent.storage.IdempotentStorageFactory;
-import com.youlai.common.lock.DistributedLock;
+import com.youlai.common.redis.distributeLock.redission.IDistributedLockRedisson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -21,16 +22,14 @@ import java.util.stream.Stream;
 
 
 @Slf4j
+@Component
 public class DistributedIdempotentImpl implements DistributedIdempotent {
-
     @Autowired
-    private DistributedLock distributedLock;
-
+    private IDistributedLockRedisson redissionLocker;
     @Autowired
-    private IdempotentProperties idempotentProperties;
-
+    private  IdempotentProperties idempotentProperties;
     @Autowired
-    private IdempotentStorageFactory idempotentStorageFactory;
+    private  IdempotentStorageFactory idempotentStorageFactory;
 
     /**
      * 锁名称后缀，区分锁和幂等的Key
@@ -163,7 +162,7 @@ public class DistributedIdempotentImpl implements DistributedIdempotent {
 
     @Override
     public <T> T execute(IdempotentRequest request, Supplier<T> execute, Supplier<T> fail) {
-        return distributedLock.lock(request.getKey() + lockSuffix, request.getLockExpireTime(), request.getTimeUnit(), () -> {
+        return redissionLocker.lock(request.getKey() + lockSuffix, request.getLockExpireTime(), request.getTimeUnit(), () -> {
             IdempotentStorage secondIdempotentStorage = null;
             if (StringUtils.hasText(idempotentProperties.getSecondLevelType())) {
                 secondIdempotentStorage = idempotentStorageFactory.getIdempotentStorage(IdempotentStorageTypeEnum.valueOf(idempotentProperties.getSecondLevelType()));
@@ -203,7 +202,7 @@ public class DistributedIdempotentImpl implements DistributedIdempotent {
 
     @Override
     public void execute(IdempotentRequest request, Runnable execute, Runnable fail) {
-        distributedLock.lock(request.getKey() + lockSuffix, request.getLockExpireTime(), request.getTimeUnit(), () -> {
+        redissionLocker.lock(request.getKey() + lockSuffix, request.getLockExpireTime(), request.getTimeUnit(), () -> {
             IdempotentStorage secondIdempotentStorage = null;
             if (StringUtils.hasText(idempotentProperties.getSecondLevelType())) {
                 secondIdempotentStorage = idempotentStorageFactory.getIdempotentStorage(IdempotentStorageTypeEnum.valueOf(idempotentProperties.getSecondLevelType()));

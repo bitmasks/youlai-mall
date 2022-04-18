@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
+@Service
 public class IdempotentStorageMysql implements IdempotentStorage {
 
     @Autowired

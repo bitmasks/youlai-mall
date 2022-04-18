@@ -1,7 +1,6 @@
-package com.youlai.common.redis.distributeLock.lua.manager;
+package com.youlai.common.redis.distributeLock.lua;
 
 import cn.hutool.core.lang.Assert;
-import com.youlai.common.redis.distributeLock.lua.lock.ILuaBaseLock;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +14,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @Setter
-public class LuaRedisLockManager implements IIuaLockManager {
+public class DistributedLockLua implements IDistributedLockLua {
 
 
     @Autowired
-    private ILuaBaseLock distributeLock;
+    private IBaseLockLua distributeLock;
 
     @Override
-    public void callBack(String lockKey, ILockCallBack callBack) {
+    public void callBack(String lockKey, LuaLockFunction callBack) {
         Assert.notNull(lockKey,"lockKey can't not be null");
         Assert.notNull(callBack,"callBack can't not be null");
         try{
@@ -38,7 +37,7 @@ public class LuaRedisLockManager implements IIuaLockManager {
     }
 
     @Override
-    public <T> T callBack(String lockKey, IReturnCallBack<T> callBack) {
+    public <T> T callBack(String lockKey, LuaLockReturnFunction<T> callBack) {
         Assert.notNull(lockKey,"lockKey can't not be null");
         Assert.notNull(callBack,"callBack can't not be null");
         try{

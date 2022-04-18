@@ -1,4 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.youlai.common.mybatis.config.MybatisPlusConfig,\
-  com.youlai.common.mybatis.handler.MyMetaObjectHandler
+com.youlai.common.mybatis.config.MybatisPlusConfig,\
+com.youlai.common.mybatis.handler.MyMetaObjectHandler,\
+com.youlai.common.mybatis.config.DistributedLockMysqlUtils
 

@@ -1,6 +1,5 @@
 package com.youlai.common.redis.distributeLock.redission;
 
-import com.youlai.common.lock.DistributedLock;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
@@ -19,10 +18,10 @@ import java.util.function.Supplier;
  */
 @Slf4j
 @Component
-public class RedissonDistributedLocker implements IRedissionLocker , DistributedLock {
+public class DistributedLockRedisson implements IDistributedLockRedisson {
     private RedissonClient redissonClient;
 
-    public RedissonDistributedLocker(RedissonClient redissonClient) {
+    public DistributedLockRedisson(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 

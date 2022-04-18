@@ -28,6 +28,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.objenesis</groupId>
+                    <artifactId>objenesis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Spring Cloud & Alibaba -->
@@ -65,11 +71,6 @@
             <version>${youlai.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.youlai</groupId>
-            <artifactId>oms-api</artifactId>
-            <version>${youlai.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>com.youlai</groupId>
@@ -92,7 +93,12 @@
         <dependency>
             <groupId>com.github.dozermapper</groupId>
             <artifactId>dozer-core</artifactId>
-            <version>${dozer.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

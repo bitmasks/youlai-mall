@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.youlai.common.idempotent.properties.IdempotentProperties
+com.youlai.common.idempotent.properties.IdempotentProperties,\
+com.youlai.common.idempotent.properties.IdempotentAutoConfiguration

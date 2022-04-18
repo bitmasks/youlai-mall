@@ -5,10 +5,10 @@ import java.util.function.Supplier;
 
 /**
  * @author xiezhiyan
- * 2022/03/07 20:06
- * 分布式锁接口
+ * 2022/04/18 15:50
  */
-public interface DistributedLock {
+public interface CustomDistributedLock {
+
     /**
      * 加锁
      * @param key 锁Key
@@ -72,4 +72,5 @@ public interface DistributedLock {
      * @return
      */
     void lock(String key, int leaseTime, TimeUnit timeUnit, Runnable success, Runnable fail);
+
 }

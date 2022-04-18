@@ -1,6 +1,6 @@
 package com.youlai.common.redis.utils;
 
-import com.youlai.common.redis.distributeLock.redission.IRedissionLocker;
+import com.youlai.common.redis.distributeLock.redission.IDistributedLockRedisson;
 import org.redisson.api.RLock;
 import org.redisson.api.RSemaphore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +14,13 @@ import java.util.concurrent.TimeUnit;
  * @description: redission分布式锁工具类
  */
 @Component
-public class RedissionLockUtils {
+public class DistributedLockRedissonUtils {
 
     @Autowired
-    private   IRedissionLocker redissLock;
+    private IDistributedLockRedisson distributedLockRedisson;
 
-    public   void setLocker(IRedissionLocker locker) {
-        redissLock = locker;
+    public void setLocker(IDistributedLockRedisson locker) {
+        distributedLockRedisson = locker;
     }
 
     /**
@@ -29,7 +29,7 @@ public class RedissionLockUtils {
      * @return
      */
     public   RLock lock(String lockKey) {
-        return redissLock.lock(lockKey);
+        return distributedLockRedisson.lock(lockKey);
     }
 
     /**
@@ -37,7 +37,7 @@ public class RedissionLockUtils {
      * @param lockKey
      */
     public   void unlock(String lockKey) {
-        redissLock.unlock(lockKey);
+        distributedLockRedisson.unlock(lockKey);
     }
 
     /**
@@ -45,7 +45,7 @@ public class RedissionLockUtils {
      * @param lock
      */
     public   void unlock(RLock lock) {
-        redissLock.unlock(lock);
+        distributedLockRedisson.unlock(lock);
     }
 
     /**
@@ -54,7 +54,7 @@ public class RedissionLockUtils {
      * @param timeout 超时时间   单位：秒
      */
     public   RLock lock(String lockKey, int timeout) {
-        return redissLock.lock(lockKey, timeout);
+        return distributedLockRedisson.lock(lockKey, timeout);
     }
 
     /**
@@ -64,7 +64,7 @@ public class RedissionLockUtils {
      * @param timeout 超时时间
      */
     public   RLock lock(String lockKey, TimeUnit unit , int timeout) {
-        return redissLock.lock(lockKey, unit, timeout);
+        return distributedLockRedisson.lock(lockKey, unit, timeout);
     }
 
     /**
@@ -75,7 +75,7 @@ public class RedissionLockUtils {
      * @return
      */
     public   boolean tryLock(String lockKey, int waitTime, int leaseTime) {
-        return redissLock.tryLock(lockKey, TimeUnit.SECONDS, waitTime, leaseTime);
+        return distributedLockRedisson.tryLock(lockKey, TimeUnit.SECONDS, waitTime, leaseTime);
     }
 
     /**
@@ -87,7 +87,7 @@ public class RedissionLockUtils {
      * @return
      */
     public   boolean tryLock(String lockKey, TimeUnit unit, int waitTime, int leaseTime) {
-        return redissLock.tryLock(lockKey, unit, waitTime, leaseTime);
+        return distributedLockRedisson.tryLock(lockKey, unit, waitTime, leaseTime);
     }
 
     /**
@@ -97,7 +97,7 @@ public class RedissionLockUtils {
      * @return int
      */
     public   int incr(String key, int delta) {
-        return redissLock.incr(key,delta);
+        return distributedLockRedisson.incr(key,delta);
     }
 
     /**
@@ -107,7 +107,7 @@ public class RedissionLockUtils {
      * @return int
      */
     public   int decr(String key, int delta) {
-        return redissLock.decr(key,delta);
+        return distributedLockRedisson.decr(key,delta);
     }
 
 
@@ -119,7 +119,7 @@ public class RedissionLockUtils {
      * @date 2022/2/25 10:30:30
      */
     public   RSemaphore getSemaphore(String key) {
-        return redissLock.getSemaphore(key);
+        return distributedLockRedisson.getSemaphore(key);
     }
 
 }

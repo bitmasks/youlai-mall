@@ -1,14 +1,11 @@
 package com.youlai.common.idempotent;
 
 
-
-
 import com.youlai.common.idempotent.enums.ReadWriteTypeEnum;
 import com.youlai.common.idempotent.request.IdempotentRequest;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
 public interface DistributedIdempotent {
 
     /**
