@@ -1,6 +1,7 @@
 package com.youlai.common.mybatis.config;
 
 import com.youlai.common.mybatis.lock.IDistributedLockMysql;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -12,17 +13,12 @@ import java.util.function.Supplier;
  */
 @Component
 public class DistributedLockMysqlUtils {
-
+    @Autowired
     private IDistributedLockMysql distributedLockMysql;
-
-    public void setLocker(IDistributedLockMysql locker) {
-        distributedLockMysql = locker;
-    }
 
     public <T> T lock(String key, int waitTime, int leaseTime, Supplier<T> success, Supplier<T> fail) {
         return distributedLockMysql.lock(key, waitTime, leaseTime, success, fail);
     }
-
 
     public <T> T lock(String key, int leaseTime, Supplier<T> success, Supplier<T> fail) {
         return distributedLockMysql.lock(key, 0, leaseTime, success, fail);

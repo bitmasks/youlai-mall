@@ -116,6 +116,11 @@
             <groupId>com.youlai</groupId>
             <artifactId>common-idempotent</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

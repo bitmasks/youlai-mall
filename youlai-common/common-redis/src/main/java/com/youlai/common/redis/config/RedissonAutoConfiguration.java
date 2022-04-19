@@ -62,7 +62,6 @@ public class RedissonAutoConfiguration {
      * @return
      */
 
-
     @Bean("distributedLockRedisson")
     @Primary
     @ConditionalOnClass(RedissonClient.class)

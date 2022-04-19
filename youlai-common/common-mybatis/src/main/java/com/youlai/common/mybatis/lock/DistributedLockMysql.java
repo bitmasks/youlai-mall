@@ -1,6 +1,7 @@
 package com.youlai.common.mybatis.lock;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -17,12 +18,8 @@ import java.util.function.Supplier;
 @Slf4j
 @Component
 public class DistributedLockMysql implements IDistributedLockMysql {
-
+    @Autowired
     private DataSource dataSource;
-
-    public DistributedLockMysql(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
 
     @Override
     public <T> T lock(String key, int waitTime, int leaseTime, Supplier<T> success, Supplier<T> fail) {

@@ -1,4 +1,4 @@
-package com.youlai.common.idempotent.properties;
+package com.youlai.common.idempotent.config;
 
 
 import com.youlai.common.idempotent.enums.IdempotentStorageTypeEnum;

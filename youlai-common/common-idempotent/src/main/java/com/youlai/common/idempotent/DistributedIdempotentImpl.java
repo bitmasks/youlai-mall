@@ -3,7 +3,7 @@ package com.youlai.common.idempotent;
 
 import com.youlai.common.idempotent.enums.IdempotentStorageTypeEnum;
 import com.youlai.common.idempotent.enums.ReadWriteTypeEnum;
-import com.youlai.common.idempotent.properties.IdempotentProperties;
+import com.youlai.common.idempotent.config.IdempotentProperties;
 import com.youlai.common.idempotent.request.IdempotentRequest;
 import com.youlai.common.idempotent.storage.IdempotentStorage;
 import com.youlai.common.idempotent.storage.IdempotentStorageFactory;
