@@ -49,6 +49,9 @@ public class ResourceServerConfig {
 
     private final ResourceServerManager resourceServerManager;
 
+
+    private final ReactiveRedisAuthenticationManager reactiveRedisAuthenticationManager;
+
     @Setter
     private List<String> ignoreUrls;
 
@@ -64,7 +67,7 @@ public class ResourceServerConfig {
                 .jwt()
                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 .publicKey(rsaPublicKey())   // 本地加载公钥
-                //.jwkSetUri()  // 远程获取公钥，默认读取的key是spring.security.oauth2.resourceserver.jwt.jwk-set-uri
+        //.jwkSetUri()  // 远程获取公钥，默认读取的key是spring.security.oauth2.resourceserver.jwt.jwk-set-uri
         ;
         http.oauth2ResourceServer().authenticationEntryPoint(authenticationEntryPoint());
         http.authorizeExchange()

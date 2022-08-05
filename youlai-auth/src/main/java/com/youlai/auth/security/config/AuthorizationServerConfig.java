@@ -21,6 +21,7 @@ import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -40,6 +41,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 
@@ -78,11 +80,11 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
         List<TokenEnhancer> tokenEnhancers = new ArrayList<>();
         tokenEnhancers.add(tokenEnhancer());
-        tokenEnhancers.add(jwtAccessTokenConverter());
+        //tokenEnhancers.add(jwtAccessTokenConverter());
         tokenEnhancerChain.setTokenEnhancers(tokenEnhancers);
 
         //token存储模式设定 默认为InMemoryTokenStore模式存储到内存中
-        endpoints.tokenStore(jwtTokenStore());
+        endpoints.tokenStore(redisTokenStore());
 
         // 获取原有默认授权模式(授权码模式、密码模式、客户端模式、简化模式)的授权者
         List<TokenGranter> granterList = new ArrayList<>(Arrays.asList(endpoints.getTokenGranter()));
@@ -105,7 +107,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         CompositeTokenGranter compositeTokenGranter = new CompositeTokenGranter(granterList);
         endpoints
                 .authenticationManager(authenticationManager)
-                .accessTokenConverter(jwtAccessTokenConverter())
+               // .accessTokenConverter(jwtAccessTokenConverter())
                 .tokenEnhancer(tokenEnhancerChain)
                 .tokenGranter(compositeTokenGranter)
 
@@ -116,16 +118,26 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     /**
      * jwt token存储模式
      */
-    @Bean
-    public JwtTokenStore jwtTokenStore(){
+  /*  @Bean
+    public JwtTokenStore jwtTokenStore() {
         return new JwtTokenStore(jwtAccessTokenConverter());
+    }*/
+
+
+    private final  RedisConnectionFactory redisConnectionFactory;
+
+    @Bean
+    public RedisTokenStore redisTokenStore() {
+        RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
+        redisTokenStore.setPrefix("oauth:token:");
+        return redisTokenStore;
     }
 
     public DefaultTokenServices tokenServices(AuthorizationServerEndpointsConfigurer endpoints) {
         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
         List<TokenEnhancer> tokenEnhancers = new ArrayList<>();
         tokenEnhancers.add(tokenEnhancer());
-        tokenEnhancers.add(jwtAccessTokenConverter());
+       // tokenEnhancers.add(jwtAccessTokenConverter());
         tokenEnhancerChain.setTokenEnhancers(tokenEnhancers);
 
         DefaultTokenServices tokenServices = new DefaultTokenServices();
@@ -157,12 +169,12 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     /**
      * 使用非对称加密算法对token签名
      */
-    @Bean
+ /*   @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
         converter.setKeyPair(keyPair());
         return converter;
-    }
+    }*/
 
     /**
      * 密钥库中获取密钥对(公钥+私钥)
