@@ -1,7 +1,8 @@
-package com.youlai.auth.security.serializer;
+package com.youlai.common.security.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
@@ -13,16 +14,30 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class AccessTokenJackson2Serializer extends StdSerializer<OAuth2AccessToken> {
+public class OAuth2AccessTokenJackson2Serializer extends StdSerializer<OAuth2AccessToken> {
 
-
-    protected AccessTokenJackson2Serializer() {
+    protected OAuth2AccessTokenJackson2Serializer() {
         super(OAuth2AccessToken.class);
     }
 
     @Override
-    public void serialize(OAuth2AccessToken token, JsonGenerator gen, SerializerProvider serializer) throws IOException {
+    public void serializeWithType(OAuth2AccessToken value, JsonGenerator gen, SerializerProvider serializers,
+                                  TypeSerializer typeSer) throws IOException {
+        mySerializeWithType(value, gen, serializers, typeSer);
+    }
 
+    @Override
+    public void serialize(OAuth2AccessToken token, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        mySerializeWithType(token, gen, provider, null);
+    }
+
+
+    private void mySerializeWithType(OAuth2AccessToken token, JsonGenerator gen, SerializerProvider serializers,
+                                     TypeSerializer typeSer) throws IOException {
+        gen.writeStartObject();
+        if (typeSer != null) {
+            gen.writeStringField(typeSer.getPropertyName(), token.getClass().getName());
+        }
         Map<String, Object> tokenMap = new LinkedHashMap<>();
         tokenMap.put(OAuth2AccessToken.ACCESS_TOKEN, token.getValue());
         tokenMap.put(OAuth2AccessToken.TOKEN_TYPE, token.getTokenType());
@@ -51,6 +66,5 @@ public class AccessTokenJackson2Serializer extends StdSerializer<OAuth2AccessTok
             gen.writeObjectField(key, tokenMap.get(key));
         }
         gen.writeEndObject();
-
     }
 }

@@ -1,4 +1,4 @@
-package com.youlai.common.security.userdetails.member;
+package com.youlai.common.security.userdetails;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
