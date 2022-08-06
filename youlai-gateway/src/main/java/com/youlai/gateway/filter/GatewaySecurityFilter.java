@@ -3,7 +3,6 @@ package com.youlai.gateway.filter;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.nimbusds.jose.JWSObject;
 import com.youlai.common.constant.SecurityConstants;
 import com.youlai.common.result.ResultCode;
 import com.youlai.gateway.util.ResponseUtils;
@@ -70,25 +69,15 @@ public class GatewaySecurityFilter implements GlobalFilter, Ordered {
             }
         }
 
-        // 非JWT放行不做后续解析处理
         String token = request.getHeaders().getFirst(SecurityConstants.AUTHORIZATION_KEY);
-        if (StrUtil.isBlank(token) || !StrUtil.startWithIgnoreCase(token, SecurityConstants.JWT_PREFIX)) {
+        if (StrUtil.isBlank(token) || !StrUtil.startWithIgnoreCase(token, SecurityConstants.BEARER_PREFIX)) {
             return chain.filter(exchange);
         }
 
-        // 解析JWT获取jti，以jti为key判断redis的黑名单列表是否存在，存在则拦截访问
-        token = StrUtil.replaceIgnoreCase(token, SecurityConstants.JWT_PREFIX, Strings.EMPTY);
-        String payload = StrUtil.toString(JWSObject.parse(token).getPayload());
-        JSONObject jsonObject = JSONUtil.parseObj(payload);
-        String jti = jsonObject.getStr(SecurityConstants.JWT_JTI);
-        Boolean isBlack = redisTemplate.hasKey(SecurityConstants.TOKEN_BLACKLIST_PREFIX + jti);
-        if (isBlack) {
-            return ResponseUtils.writeErrorInfo(response, ResultCode.TOKEN_ACCESS_FORBIDDEN);
-        }
+        token = StrUtil.replaceIgnoreCase(token, SecurityConstants.BEARER_PREFIX, Strings.EMPTY);
 
-        // token有效不在黑名单中，request写入JWT的载体信息传递给其他服务
         request = exchange.getRequest().mutate()
-                .header(SecurityConstants.JWT_PAYLOAD_KEY, URLEncoder.encode(payload, "UTF-8"))
+                .header(SecurityConstants.ACCESS_TOKEN_KEY, token)
                 .build();
         exchange = exchange.mutate().request(request).build();
         return chain.filter(exchange);

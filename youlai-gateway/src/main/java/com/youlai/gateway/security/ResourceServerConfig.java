@@ -1,37 +1,30 @@
 package com.youlai.gateway.security;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.io.IoUtil;
 import com.youlai.common.constant.SecurityConstants;
 import com.youlai.common.result.ResultCode;
+import com.youlai.gateway.JacksonSerializationStrategy;
 import com.youlai.gateway.util.ResponseUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
+import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
+import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStoreSerializationStrategy;
+import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import reactor.core.publisher.Mono;
 
-import java.io.InputStream;
-import java.security.KeyFactory;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 
 /**
@@ -47,10 +40,12 @@ import java.util.List;
 @Slf4j
 public class ResourceServerConfig {
 
-    private final ResourceServerManager resourceServerManager;
 
+    private final ResourceAuthenticationManager resourceAuthenticationManager;
 
-    private final ReactiveRedisAuthenticationManager reactiveRedisAuthenticationManager;
+    private final ResourceAuthorizationManager resourceAuthorizationManager;
+
+    private final RedisConnectionFactory redisConnectionFactory;
 
     @Setter
     private List<String> ignoreUrls;
@@ -62,17 +57,26 @@ public class ResourceServerConfig {
             log.error("网关白名单路径读取失败：Nacos配置读取失败，请检查配置中心连接是否正确！");
         }
 
-        http
+ /*       http
                 .oauth2ResourceServer()
                 .jwt()
                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 .publicKey(rsaPublicKey())   // 本地加载公钥
-        //.jwkSetUri()  // 远程获取公钥，默认读取的key是spring.security.oauth2.resourceserver.jwt.jwk-set-uri
+        //.jwkSetUri()  // 远程获取公钥，默认读取的key是spring.security.oauth2.resourceserver.jwt.jwk-set-uri*/
         ;
-        http.oauth2ResourceServer().authenticationEntryPoint(authenticationEntryPoint());
+        // http.oauth2ResourceServer().authenticationEntryPoint(authenticationEntryPoint());
+
+        AuthenticationWebFilter authenticationWebFilter = new AuthenticationWebFilter(resourceAuthenticationManager);
+        authenticationWebFilter.setServerAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
+
+
+        http.addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+
+
         http.authorizeExchange()
                 .pathMatchers(Convert.toStrArray(ignoreUrls)).permitAll()
-                .anyExchange().access(resourceServerManager)
+                .anyExchange()
+                .access(resourceAuthorizationManager)
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler()) // 处理未授权
@@ -106,37 +110,13 @@ public class ResourceServerConfig {
         };
     }
 
-    /**
-     * @link https://blog.csdn.net/qq_24230139/article/details/105091273
-     * ServerHttpSecurity没有将jwt中authorities的负载部分当做Authentication
-     * 需要把jwt的Claim中的authorities加入
-     * 方案：重新定义权限管理器，默认转换器JwtGrantedAuthoritiesConverter
-     */
     @Bean
-    public Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix(SecurityConstants.AUTHORITY_PREFIX);
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName(SecurityConstants.JWT_AUTHORITIES_KEY);
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-        return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
+    public RedisTokenStore redisTokenStore() {
+        RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
+        redisTokenStore.setPrefix(SecurityConstants.OAUTH_TOKEN_PREFIX);
+        redisTokenStore.setSerializationStrategy(new JacksonSerializationStrategy());
+        return redisTokenStore;
     }
 
-    /**
-     * 本地获取JWT验签公钥
-     */
-    @SneakyThrows
-    @Bean
-    public RSAPublicKey rsaPublicKey() {
-        Resource resource = new ClassPathResource("public.key");
-        InputStream is = resource.getInputStream();
-        String publicKeyData = IoUtil.read(is).toString();
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec((Base64.decode(publicKeyData)));
-
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
-        return rsaPublicKey;
-    }
 
 }

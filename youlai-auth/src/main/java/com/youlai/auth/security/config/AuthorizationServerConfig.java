@@ -5,10 +5,11 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONUtil;
 import com.youlai.auth.security.core.clientdetails.ClientDetailsServiceImpl;
-import com.youlai.auth.security.core.userdetails.member.MemberUserDetails;
-import com.youlai.auth.security.core.userdetails.member.MemberUserDetailsServiceImpl;
-import com.youlai.auth.security.core.userdetails.user.SysUserDetails;
-import com.youlai.auth.security.core.userdetails.user.SysUserDetailsServiceImpl;
+import com.youlai.auth.security.core.userdetails.MemberUserDetailsServiceImpl;
+import com.youlai.auth.security.core.userdetails.SysUserDetailsServiceImpl;
+import com.youlai.auth.security.serializer.JacksonRedisTokenStoreSerializationStrategy;
+import com.youlai.common.security.userdetails.member.MemberUserDetails;
+import com.youlai.common.security.userdetails.user.SysUserDetails;
 import com.youlai.auth.security.extension.captcha.CaptchaTokenGranter;
 import com.youlai.auth.security.extension.mobile.SmsCodeTokenGranter;
 import com.youlai.auth.security.extension.refresh.PreAuthenticatedUserDetailsService;
@@ -38,8 +39,6 @@ import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -129,7 +128,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Bean
     public RedisTokenStore redisTokenStore() {
         RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
-        redisTokenStore.setPrefix("oauth:token:");
+        redisTokenStore.setPrefix(SecurityConstants.OAUTH_TOKEN_PREFIX);
+        redisTokenStore.setSerializationStrategy(new JacksonRedisTokenStoreSerializationStrategy());
         return redisTokenStore;
     }
 

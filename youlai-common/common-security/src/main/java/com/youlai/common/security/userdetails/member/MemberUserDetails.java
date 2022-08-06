@@ -1,7 +1,5 @@
-package com.youlai.auth.security.core.userdetails.member;
+package com.youlai.common.security.userdetails.member;
 
-import com.youlai.common.constant.GlobalConstants;
-import com.youlai.mall.ums.dto.MemberAuthDTO;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,21 +23,8 @@ public class MemberUserDetails implements UserDetails {
 
     /**
      * 扩展字段：认证身份标识，枚举值如下：
-     *
-     * @see com.youlai.common.enums.AuthenticationIdentityEnum
      */
     private String authenticationIdentity;
-
-    /**
-     * 小程序会员用户体系
-     *
-     * @param member 小程序会员用户认证信息
-     */
-    public MemberUserDetails(MemberAuthDTO member) {
-        this.setMemberId(member.getMemberId());
-        this.setUsername(member.getUsername());
-        this.setEnabled(GlobalConstants.STATUS_YES.equals(member.getStatus()));
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

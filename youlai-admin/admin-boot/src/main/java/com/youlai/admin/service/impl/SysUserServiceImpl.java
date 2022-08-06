@@ -33,7 +33,7 @@ import com.youlai.admin.service.SysPermissionService;
 import com.youlai.admin.service.SysUserRoleService;
 import com.youlai.admin.service.SysUserService;
 import com.youlai.common.base.IBaseEnum;
-import com.youlai.common.web.util.UserUtils;
+import com.youlai.common.web.util.UserSessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -337,7 +337,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public LoginUserVO getLoginUserInfo() {
         // 登录用户entity
         SysUser user = this.getOne(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getId, UserUtils.getUserId())
+                .eq(SysUser::getId, UserSessionUtils.getUserId())
                 .select(
                         SysUser::getId,
                         SysUser::getNickname,
@@ -348,7 +348,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         LoginUserVO loginUserVO = userConverter.entity2LoginUser(user);
 
         // 用户角色集合
-        List<String> roles = UserUtils.getRoles();
+        List<String> roles = UserSessionUtils.getRoles();
         loginUserVO.setRoles(roles);
 
         // 用户按钮权限集合

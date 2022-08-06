@@ -1,8 +1,10 @@
-package com.youlai.auth.security.core.userdetails.member;
+package com.youlai.auth.security.core.userdetails;
 
+import com.youlai.common.constant.GlobalConstants;
 import com.youlai.common.enums.AuthenticationIdentityEnum;
 import com.youlai.common.result.Result;
 import com.youlai.common.result.ResultCode;
+import com.youlai.common.security.userdetails.member.MemberUserDetails;
 import com.youlai.mall.ums.api.MemberFeignClient;
 import com.youlai.mall.ums.dto.MemberAuthDTO;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +45,10 @@ public class MemberUserDetailsServiceImpl implements UserDetailsService {
         if (Result.isSuccess(result)) {
             MemberAuthDTO member = result.getData();
             if (null != member) {
-                userDetails = new MemberUserDetails(member);
+                userDetails=new MemberUserDetails();
+                userDetails.setMemberId(member.getMemberId());
+                userDetails.setUsername(member.getUsername());
+                userDetails.setEnabled(GlobalConstants.STATUS_YES.equals(member.getStatus()));
                 userDetails.setAuthenticationIdentity(AuthenticationIdentityEnum.MOBILE.getValue());   // 认证身份标识:mobile
             }
         }
@@ -72,7 +77,10 @@ public class MemberUserDetailsServiceImpl implements UserDetailsService {
         if (Result.isSuccess(result)) {
             MemberAuthDTO member = result.getData();
             if (null != member) {
-                userDetails = new MemberUserDetails(member);
+                userDetails=new MemberUserDetails();
+                userDetails.setMemberId(member.getMemberId());
+                userDetails.setUsername(member.getUsername());
+                userDetails.setEnabled(GlobalConstants.STATUS_YES.equals(member.getStatus()));
                 userDetails.setAuthenticationIdentity(AuthenticationIdentityEnum.OPENID.getValue());   // 认证身份标识:openId
             }
         }

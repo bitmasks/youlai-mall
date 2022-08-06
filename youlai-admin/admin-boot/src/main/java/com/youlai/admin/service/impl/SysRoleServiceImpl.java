@@ -20,7 +20,7 @@ import com.youlai.admin.pojo.vo.role.RolePageVO;
 import com.youlai.admin.service.*;
 import com.youlai.common.constant.GlobalConstants;
 import com.youlai.common.web.domain.Option;
-import com.youlai.common.web.util.UserUtils;
+import com.youlai.common.web.util.UserSessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -68,7 +68,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                         .like(StrUtil.isNotBlank(keywords), SysRole::getName, keywords)
                         .or()
                         .like(StrUtil.isNotBlank(keywords), SysRole::getCode, keywords)
-                        .ne(!UserUtils.isRoot(), SysRole::getCode, GlobalConstants.ROOT_ROLE_CODE) // 非超级管理员不显示超级管理员角色
+                        .ne(!UserSessionUtils.isRoot(), SysRole::getCode, GlobalConstants.ROOT_ROLE_CODE) // 非超级管理员不显示超级管理员角色
                         .select(SysRole::getId, SysRole::getName, SysRole::getCode)
         );
 
@@ -86,7 +86,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     public List<Option> listRoleOptions() {
         // 查询数据
         List<SysRole> roleList = this.list(new LambdaQueryWrapper<SysRole>()
-                .ne(!UserUtils.isRoot(), SysRole::getCode, GlobalConstants.ROOT_ROLE_CODE)
+                .ne(!UserSessionUtils.isRoot(), SysRole::getCode, GlobalConstants.ROOT_ROLE_CODE)
                 .select(SysRole::getId, SysRole::getName)
                 .orderByAsc(SysRole::getSort)
         );

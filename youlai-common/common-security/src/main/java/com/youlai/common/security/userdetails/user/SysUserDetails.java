@@ -1,15 +1,10 @@
-package com.youlai.auth.security.core.userdetails.user;
+package com.youlai.common.security.userdetails.user;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.youlai.admin.dto.UserAuthDTO;
-import com.youlai.auth.common.enums.PasswordEncoderTypeEnum;
-import com.youlai.common.constant.GlobalConstants;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 
@@ -29,8 +24,6 @@ public class SysUserDetails implements UserDetails {
 
     /**
      * 扩展字段：认证身份标识，枚举值如下：
-     *
-     * @see com.youlai.common.enums.AuthenticationIdentityEnum
      */
     private String authenticationIdentity;
 
@@ -47,20 +40,6 @@ public class SysUserDetails implements UserDetails {
     private Boolean enabled;
     private Collection<SimpleGrantedAuthority> authorities;
 
-    /**
-     * 系统管理用户
-     */
-    public SysUserDetails(UserAuthDTO user) {
-        this.setUserId(user.getUserId());
-        this.setUsername(user.getUsername());
-        this.setDeptId(user.getDeptId());
-        this.setPassword(PasswordEncoderTypeEnum.BCRYPT.getPrefix() + user.getPassword());
-        this.setEnabled(GlobalConstants.STATUS_YES.equals(user.getStatus()));
-        if (CollectionUtil.isNotEmpty(user.getRoles())) {
-            authorities = new ArrayList<>();
-            user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
-        }
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

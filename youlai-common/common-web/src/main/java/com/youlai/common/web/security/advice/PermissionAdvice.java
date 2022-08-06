@@ -6,7 +6,7 @@ import com.youlai.common.constant.GlobalConstants;
 import com.youlai.common.result.Result;
 import com.youlai.common.result.ResultCode;
 import com.youlai.common.web.security.annotation.RequirePerms;
-import com.youlai.common.web.util.UserUtils;
+import com.youlai.common.web.util.UserSessionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -55,10 +55,10 @@ public class PermissionAdvice {
 
         // 权限校验
         boolean passFlag = false;
-        List<String> userRoles = UserUtils.getRoles();
+        List<String> userRoles = UserSessionUtils.getRoles();
 
         // 超级管理员放行
-        if (UserUtils.isRoot()) {
+        if (UserSessionUtils.isRoot()) {
             return true;
         }
 

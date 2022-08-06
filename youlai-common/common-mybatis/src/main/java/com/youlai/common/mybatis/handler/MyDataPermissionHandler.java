@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import com.youlai.common.constant.GlobalConstants;
 import com.youlai.common.mybatis.annotation.DataPermission;
 import com.youlai.common.web.util.JwtUtils;
-import com.youlai.common.web.util.UserUtils;
+import com.youlai.common.web.util.UserSessionUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -39,7 +39,7 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
                 DataPermission annotation = method.getAnnotation(DataPermission.class);
                 if (ObjectUtils.isNotEmpty(annotation) && (method.getName().equals(methodName) || (method.getName() + "_COUNT").equals(methodName))) {
                     // 获取当前的用户角色
-                    List<String> roles = UserUtils.getRoles();
+                    List<String> roles = UserSessionUtils.getRoles();
                     if (!roles.isEmpty() && roles.contains(GlobalConstants.ROOT_ROLE_CODE)) {
                         // 如果是超级管理员则放行
                         return where;

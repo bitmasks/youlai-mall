@@ -11,13 +11,12 @@ public interface SecurityConstants {
     String AUTHORIZATION_KEY = "Authorization";
 
     /**
-     * JWT令牌前缀
+     * 授权TOKEN前缀
      */
-    String JWT_PREFIX = "Bearer ";
-
+    String BEARER_PREFIX = "Bearer ";
 
     /**
-     * Basic认证前缀
+     * 认证Token前缀
      */
     String BASIC_PREFIX = "Basic ";
 
@@ -99,19 +98,24 @@ public interface SecurityConstants {
     /**
      * 线上环境放行的请求路径
      */
-    List<String> PROD_PERMIT_PATHS= Arrays.asList("/youlai-lab","/app-api","/youlai-auth/oauth/logout");
+    List<String> PROD_PERMIT_PATHS = Arrays.asList("/youlai-lab", "/app-api", "/youlai-auth/oauth/logout");
 
     /**
      * 线上环境禁止的请求路径
      */
-    List<String> PROD_FORBID_PATHS= Arrays.asList("/youlai-admin/api/v1/menus","/mall-pms/api");
+    List<String> PROD_FORBID_PATHS = Arrays.asList("/youlai-admin/api/v1/menus", "/mall-pms/api");
 
     /**
      * 线上环境禁止方法
      */
-    List<String> PROD_FORBID_METHODS= Arrays.asList("PUT","DELETE");
+    List<String> PROD_FORBID_METHODS = Arrays.asList("PUT", "DELETE");
+
+    /**
+     * TOKEN的Redis前缀
+     */
+    String OAUTH_TOKEN_PREFIX = "oauth:token:";
 
 
-    String TOKEN_PREFIX="auth:token:";
+    String ACCESS_TOKEN_KEY="access_token";
 
 }
