@@ -1,7 +1,10 @@
 package com.youlai.common.web.util;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youlai.common.constant.SecurityConstants;
 import com.youlai.common.result.ResultCode;
@@ -15,6 +18,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -30,7 +34,7 @@ public class UserSessionUtils {
     private static RedisTemplate staticRedisTemplate;
 
     @Autowired
-    private RedisTemplate jdkSerializeRedisTemplate;
+    private RedisTemplate redisTemplate;
 
 
     /**
@@ -38,7 +42,7 @@ public class UserSessionUtils {
      */
     @PostConstruct
     public void init() {
-        staticRedisTemplate = jdkSerializeRedisTemplate;
+        staticRedisTemplate = redisTemplate;
     }
 
 
@@ -65,8 +69,14 @@ public class UserSessionUtils {
             throw new BusinessException(ResultCode.TOKEN_INVALID_OR_EXPIRED);
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        CurrUserInfo currUserInfo = objectMapper.convertValue(obj, CurrUserInfo.class);
+
+        LinkedHashMap map = (LinkedHashMap)obj;
+
+        CurrUserInfo currUserInfo=new CurrUserInfo();
+        currUserInfo.setUserId(Convert.toLong(map.get("userId")));
+        currUserInfo.setUsername(Convert.toStr(map.get("username")));
+        currUserInfo.setDeptId(Convert.toLong(map.get("deptId")));
+        currUserInfo.setAuthorities(Convert.toList(String.class,JSONUtil.parseArray(map.get("authorities"))));
         return currUserInfo;
     }
 
@@ -91,7 +101,4 @@ public class UserSessionUtils {
         return CollectionUtil.isNotEmpty(roles) && roles.contains("ROOT");
     }
 
-    public static Long getMemberId() {
-        return getCurrUser().getMemberId();
-    }
 }

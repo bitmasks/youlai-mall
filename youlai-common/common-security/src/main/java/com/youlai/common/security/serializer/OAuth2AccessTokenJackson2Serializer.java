@@ -50,6 +50,7 @@ public class OAuth2AccessTokenJackson2Serializer extends StdSerializer<OAuth2Acc
             long now = System.currentTimeMillis();
             tokenMap.put(OAuth2AccessToken.EXPIRES_IN, (expiration.getTime() - now) / 1000);
         }
+
         Set<String> scope = token.getScope();
         if (scope != null && !scope.isEmpty()) {
             StringBuilder scopes = new StringBuilder();

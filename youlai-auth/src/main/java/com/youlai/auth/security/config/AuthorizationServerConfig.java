@@ -7,9 +7,6 @@ import cn.hutool.json.JSONUtil;
 import com.youlai.auth.security.core.clientdetails.ClientDetailsServiceImpl;
 import com.youlai.auth.security.core.userdetails.MemberUserDetailsServiceImpl;
 import com.youlai.auth.security.core.userdetails.SysUserDetailsServiceImpl;
-import com.youlai.auth.security.serializer.JacksonRedisTokenStoreSerializationStrategy;
-import com.youlai.common.security.userdetails.member.MemberUserDetails;
-import com.youlai.common.security.userdetails.user.SysUserDetails;
 import com.youlai.auth.security.extension.captcha.CaptchaTokenGranter;
 import com.youlai.auth.security.extension.mobile.SmsCodeTokenGranter;
 import com.youlai.auth.security.extension.refresh.PreAuthenticatedUserDetailsService;
@@ -17,6 +14,9 @@ import com.youlai.auth.security.extension.wechat.WechatTokenGranter;
 import com.youlai.common.constant.SecurityConstants;
 import com.youlai.common.result.Result;
 import com.youlai.common.result.ResultCode;
+import com.youlai.common.security.serializer.JacksonSerializationStrategy;
+import com.youlai.common.security.userdetails.MemberUserDetails;
+import com.youlai.common.security.userdetails.SysUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +46,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 
 import java.security.KeyPair;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 认证授权配置
@@ -129,7 +130,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public RedisTokenStore redisTokenStore() {
         RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
         redisTokenStore.setPrefix(SecurityConstants.OAUTH_TOKEN_PREFIX);
-        redisTokenStore.setSerializationStrategy(new JacksonRedisTokenStoreSerializationStrategy());
+        redisTokenStore.setSerializationStrategy(new JacksonSerializationStrategy());
         return redisTokenStore;
     }
 
@@ -199,6 +200,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 additionalInfo.put("userId", sysUserDetails.getUserId());
                 additionalInfo.put("username", sysUserDetails.getUsername());
                 additionalInfo.put("deptId", sysUserDetails.getDeptId());
+                additionalInfo.put("authorities", JSONUtil.toJsonStr(sysUserDetails.getAuthorities().stream().map(item->item.getAuthority()).collect(Collectors.toList())));
                 // 认证身份标识(username:用户名；)
                 if (StrUtil.isNotBlank(sysUserDetails.getAuthenticationIdentity())) {
                     additionalInfo.put("authenticationIdentity", sysUserDetails.getAuthenticationIdentity());

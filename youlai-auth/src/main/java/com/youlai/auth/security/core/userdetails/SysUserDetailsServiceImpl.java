@@ -7,7 +7,7 @@ import com.youlai.auth.common.enums.PasswordEncoderTypeEnum;
 import com.youlai.common.constant.GlobalConstants;
 import com.youlai.common.result.Result;
 import com.youlai.common.result.ResultCode;
-import com.youlai.common.security.userdetails.user.SysUserDetails;
+import com.youlai.common.security.userdetails.SysUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;

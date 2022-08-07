@@ -86,6 +86,9 @@ public class OAuth2AccessTokenJackson2Deserializer extends StdDeserializer<OAuth
         long userId = jsonNode.get("userId").asLong();
         additionalInformation.put("deptId", deptId);
         additionalInformation.put("userId", userId);
+
+        String authorities = jsonNode.get("authorities").asText();
+        additionalInformation.put("authorities", authorities);
         return additionalInformation;
     }
 
