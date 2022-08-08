@@ -20,10 +20,6 @@ public class MemberUserDetails implements UserDetails {
     private Long memberId;
     private String username;
     private Boolean enabled;
-
-    /**
-     * 扩展字段：认证身份标识，枚举值如下：
-     */
     private String authenticationIdentity;
 
     @Override
