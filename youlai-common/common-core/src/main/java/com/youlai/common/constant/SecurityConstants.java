@@ -110,12 +110,7 @@ public interface SecurityConstants {
      */
     List<String> PROD_FORBID_METHODS = Arrays.asList("PUT", "DELETE");
 
-    /**
-     * TOKEN的Redis前缀
-     */
-    String OAUTH_TOKEN_PREFIX = "oauth:token:";
 
 
-    String ACCESS_TOKEN_KEY="access_token";
 
 }

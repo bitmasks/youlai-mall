@@ -1,12 +1,10 @@
 package com.youlai.auth.security.config;
 
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONUtil;
 import com.youlai.auth.security.core.clientdetails.ClientDetailsServiceImpl;
-import com.youlai.auth.security.core.userdetails.MemberUserDetailsServiceImpl;
-import com.youlai.auth.security.core.userdetails.SysUserDetailsServiceImpl;
+import com.youlai.auth.security.core.userdetails.member.MemberUserDetailsServiceImpl;
+import com.youlai.auth.security.core.userdetails.user.SysUserDetailsServiceImpl;
 import com.youlai.auth.security.extension.captcha.CaptchaTokenGranter;
 import com.youlai.auth.security.extension.mobile.SmsCodeTokenGranter;
 import com.youlai.auth.security.extension.refresh.PreAuthenticatedUserDetailsService;
@@ -14,9 +12,6 @@ import com.youlai.auth.security.extension.wechat.WechatTokenGranter;
 import com.youlai.common.constant.SecurityConstants;
 import com.youlai.common.result.Result;
 import com.youlai.common.result.ResultCode;
-import com.youlai.common.security.serializer.JacksonSerializationStrategy;
-import com.youlai.common.security.userdetails.MemberUserDetails;
-import com.youlai.common.security.userdetails.SysUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -46,7 +40,6 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 
 import java.security.KeyPair;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 认证授权配置
@@ -61,6 +54,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private final SysUserDetailsServiceImpl sysUserDetailsService;
     private final MemberUserDetailsServiceImpl memberUserDetailsService;
     private final StringRedisTemplate stringRedisTemplate;
+
+    private final TokenEnhancer tokenEnhancer;
 
     /**
      * OAuth2客户端
@@ -79,7 +74,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         // Token增强
         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
         List<TokenEnhancer> tokenEnhancers = new ArrayList<>();
-        tokenEnhancers.add(tokenEnhancer());
+        tokenEnhancers.add(tokenEnhancer);
         //tokenEnhancers.add(jwtAccessTokenConverter());
         tokenEnhancerChain.setTokenEnhancers(tokenEnhancers);
 
@@ -129,15 +124,14 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Bean
     public RedisTokenStore redisTokenStore() {
         RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
-        redisTokenStore.setPrefix(SecurityConstants.OAUTH_TOKEN_PREFIX);
-        redisTokenStore.setSerializationStrategy(new JacksonSerializationStrategy());
+        redisTokenStore.setPrefix("youlai-auth:");
         return redisTokenStore;
     }
 
     public DefaultTokenServices tokenServices(AuthorizationServerEndpointsConfigurer endpoints) {
         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
         List<TokenEnhancer> tokenEnhancers = new ArrayList<>();
-        tokenEnhancers.add(tokenEnhancer());
+        tokenEnhancers.add(tokenEnhancer);
        // tokenEnhancers.add(jwtAccessTokenConverter());
         tokenEnhancerChain.setTokenEnhancers(tokenEnhancers);
 
@@ -187,37 +181,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         return keyPair;
     }
 
-    /**
-     * JWT内容增强
-     */
-    @Bean
-    public TokenEnhancer tokenEnhancer() {
-        return (accessToken, authentication) -> {
-            Map<String, Object> additionalInfo = MapUtil.newHashMap();
-            Object principal = authentication.getUserAuthentication().getPrincipal();
-            if (principal instanceof SysUserDetails) {
-                SysUserDetails sysUserDetails = (SysUserDetails) principal;
-                additionalInfo.put("userId", sysUserDetails.getUserId());
-                additionalInfo.put("username", sysUserDetails.getUsername());
-                additionalInfo.put("deptId", sysUserDetails.getDeptId());
-                additionalInfo.put("authorities", JSONUtil.toJsonStr(sysUserDetails.getAuthorities().stream().map(item->item.getAuthority()).collect(Collectors.toList())));
-                // 认证身份标识(username:用户名；)
-                if (StrUtil.isNotBlank(sysUserDetails.getAuthenticationIdentity())) {
-                    additionalInfo.put("authenticationIdentity", sysUserDetails.getAuthenticationIdentity());
-                }
-            } else if (principal instanceof MemberUserDetails) {
-                MemberUserDetails memberUserDetails = (MemberUserDetails) principal;
-                additionalInfo.put("memberId", memberUserDetails.getMemberId());
-                additionalInfo.put("username", memberUserDetails.getUsername());
-                // 认证身份标识(mobile:手机号；openId:开放式认证系统唯一身份标识)
-                if (StrUtil.isNotBlank(memberUserDetails.getAuthenticationIdentity())) {
-                    additionalInfo.put("authenticationIdentity", memberUserDetails.getAuthenticationIdentity());
-                }
-            }
-            ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
-            return accessToken;
-        };
-    }
+
 
 
     /**

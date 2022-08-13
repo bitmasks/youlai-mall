@@ -1,6 +1,6 @@
 package com.youlai.auth.security.extension.refresh;
 
-import com.youlai.auth.security.core.userdetails.MemberUserDetailsServiceImpl;
+import com.youlai.auth.security.core.userdetails.member.MemberUserDetailsServiceImpl;
 import com.youlai.common.base.IBaseEnum;
 import com.youlai.common.constant.SecurityConstants;
 import com.youlai.common.enums.AuthenticationIdentityEnum;

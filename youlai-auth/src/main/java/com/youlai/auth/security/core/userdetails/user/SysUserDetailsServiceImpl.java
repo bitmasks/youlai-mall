@@ -1,4 +1,4 @@
-package com.youlai.auth.security.core.userdetails;
+package com.youlai.auth.security.core.userdetails.user;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.youlai.admin.api.UserFeignClient;
@@ -7,7 +7,6 @@ import com.youlai.auth.common.enums.PasswordEncoderTypeEnum;
 import com.youlai.common.constant.GlobalConstants;
 import com.youlai.common.result.Result;
 import com.youlai.common.result.ResultCode;
-import com.youlai.common.security.userdetails.SysUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -19,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
